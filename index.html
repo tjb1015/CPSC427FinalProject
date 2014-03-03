@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>Polyline</title>
+	<script>
+	ustring="to become SVG"
+	var vw
+function prepare(){
+	svgdoc = document.sv.getSVGDocument();
+	H = svgdoc.getElementById("R");
+	H.setAttribute("x",0)
+}
+function ViewSource(Chosen){
+	if(Chosen.nodeName!="path") return //must improve this one day to handle other things
+	//maybe s="<"+Chosen.tagName....?
+	s="<path "
+	var attr=Chosen.attributes
+	for (i=0; i<attr.length; i++){ 
+		if (attr.item(i).name.substring(0,2)!="on")
+		if (attr.item(i).name.substring(0,9)!="transform")
+   		s+=attr.item(i).name + " = \"" + attr.item(i).value + "\" "
+	}
+	s+=" /\>"
+	ustring=s
+	vw=document.getElementById("v")
+	vw.style.display="block"
+	vw.style.width=800
+	hts="<input type=button onclick=\"top.document.getElementById('v').style.display='none'\" value='close'>"
+	hts+="<div id='special'></div><textarea rows=5 cols=80>"
+	hts+=s
+	hts+="</textarea>"
+	
+	Q.document.write(hts)
+	Q.document.close()
+	
+}
+function save(){
+	z.document.write(ustring);
+	z.document.execCommand('SaveAs',false, 'ap2.svg')
+	z.document.close();
+	a=Q.document.createElement("embed")
+	a.setAttribute("src","ap2.svg")
+	a.setAttribute("width",rightedge)
+	wd=Q.document.getElementById("special")
+	wd.appendChild(a)
+}
+function doit(x){
+		z.document.write(x);		
+		z.document.execCommand('SaveAs',false, 'export.svg')
+		
+		z.document.close();
+}
+
+function about(){
+	top.window.open("helpdraw.htm","","resizable=yes,width=780,height=500,scrollbars=yes,titlebar=no")
+}
+
+	</script>
+</head>
+
+
+<BODY topmargin="0" leftmargin="0" onload="prepare()">
+<iframe name="Z" id="z" style="display:none" style="position:absolute;top:0;width:700"></iframe>
+<iframe name="Q" id="v" style="display:none" style="position:absolute;top:0;width:700"></iframe>
+
+<div id="w" style="visibility:hidden"></div>
+<embed name="sv" src="draw018.svg" width="100%" height="100%"></embed>
+
+</body>
+</html>
