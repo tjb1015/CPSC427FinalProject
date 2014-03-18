@@ -1,0 +1,51 @@
+body {
+margin: 0;
+
+}
+
+.title {
+background-color:rgb(223,233,245);
+height:40px;
+width:100%;
+font-size:25px;
+border-bottom:thin solid black;
+
+}
+
+.toolbar {
+background-color:rgb(220,230,245) ;
+height:40px;
+width:100%;
+border-bottom:thin solid black;
+}
+
+.color {
+background-color:white;
+height:40px;
+width:100%;
+}
+
+.canvas {
+background-color:white;
+position:absolute;
+top:120px;
+right:0;
+bottom:0;
+left:0;
+
+}
+	
+ul
+{
+font-family: 'Fanwood Text', serif;
+list-style-type:none;
+margin:0;
+padding:10px;
+}
+li
+{
+display:inline;
+}
+a:hover {color:gray;}
+a:link {text-decoration:none;color:black;}    /* unvisited link */
+a:visited {text-decoration:none;color:black;} /* visited link */
