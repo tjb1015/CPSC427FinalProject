@@ -19,20 +19,15 @@ width:100%;
 border-bottom:thin solid black;
 }
 
-.color {
-background-color:white;
-height:40px;
-width:100%;
-}
+
 
 .canvas {
 background-color:white;
 position:absolute;
-top:120px;
+top:82px;
 right:0;
 bottom:0;
 left:0;
-
 }
 	
 ul

@@ -1,12 +1,21 @@
-//svg namespace
-var svgNS = "http://www.w3.org/2000/svg";
+//Global Items
+var xmlns = "http://www.w3.org/2000/svg";
+var xlink = "http://www.w3.org/1999/xlink";
+var svg = document.getElementById("mySVG");
+
+function pauseEvent(e) {
+    if (e.stopPropagation) e.stopPropagation();
+    if (e.preventDefault) e.preventDefault();
+    e.cancelBubble = true;
+    e.returnValue = false;
+    return false;
+}//used example from the internet http://stackoverflow.com/questions/5429827/how-can-i-prevent-text-element-selection-with-cursor-drag
 
 //makes grid
 function gridOne() {
-    var myDiv = document.getElementById('mySVG');
-    hgt = myDiv.clientHeight
+    hgt = document.getElementById("mySVG").clientHeight
     finhgt = hgt / 10
-    Content = ["", "100", "200", "300", "400", "500", "600", "700", "800", "900", "1000", "1100", "1200", "1300", "1400", "1500", "1600"]
+    Content = ["", "100", "200", "300", "400", "500", "600", "700", "800", "900", "1000", "1100", "1200", "1300", "1400", "1500", "1600", "1700", "1800", "1900"]
 
     //running into crossbroswer issue, in regards to a grid, and sizing issues.
 
@@ -14,7 +23,7 @@ function gridOne() {
     for (var i = 0; i < finhgt; i++) {
 
 
-        var myGrid = document.createElementNS(svgNS, 'line')
+        var myGrid = document.createElementNS(xmlns, 'line')
         myGrid.setAttribute("id", "linearY")
         myGrid.setAttribute("stroke-width", "1")
         myGrid.setAttribute("stroke", "lightgray")
@@ -24,7 +33,7 @@ function gridOne() {
         myGrid.setAttribute("y2", i * 100)
         document.getElementById("mySVG").appendChild(myGrid)
 
-        var mygrid = document.createElementNS(svgNS, 'line')
+        var mygrid = document.createElementNS(xmlns, 'line')
         mygrid.setAttribute("id", "linearX")
         mygrid.setAttribute("stroke-width", "1")
         mygrid.setAttribute("stroke", "lightgray")
@@ -34,7 +43,7 @@ function gridOne() {
         mygrid.setAttribute("y2", "100%")
         document.getElementById("mySVG").appendChild(mygrid)
 
-        var yT = document.createElementNS(svgNS, "text")
+        var yT = document.createElementNS(xmlns, "text")
         yT.setAttribute("font-size", 15)
         yT.setAttribute("font-weight", "bold")
         yT.setAttribute("fill", "black")
@@ -43,7 +52,7 @@ function gridOne() {
         yT.textContent = Content[i]
         document.getElementById("mySVG").appendChild(yT)
 
-        var xT = document.createElementNS(svgNS, "text")
+        var xT = document.createElementNS(xmlns, "text")
         xT.setAttribute("font-size", 15)
         xT.setAttribute("font-weight", "bold")
         xT.setAttribute("fill", "black")
@@ -65,7 +74,7 @@ function gridOne() {
         //brwsr = "Opera";
     }
 
-    alert(brwsr);
+    //alert(brwsr);
 }
 
 //clears grid with jquery remove function
@@ -75,17 +84,14 @@ function clearGrid() {
 }
 
 //creating shapes
-xmlns = "http://www.w3.org/2000/svg"
-xlink = "http://www.w3.org/1999/xlink"
-
-chosenShape = ""
-recCount = 0, triCount = 0, circCount = 0, elliCount = 0
-cpCount = 0
-follow = false
-shapeFollow = false
-remX = 0
-remY = 0
-fixY = 80
+var chosenShape = ""
+var recCount = 0, triCount = 0, circCount = 0, elliCount = 0;
+var cpCount = 0;
+var follow = false;
+var shapeFollow = false;
+var remX = 0;
+var remY = 0;
+var fixY = 80;
 
 
 displacementX = new Array();
@@ -118,7 +124,10 @@ function chooseShape(shape) {
     }
 
 }
+
 function shapeStartMove(evt, shapeID) {
+    evt = evt || window.event;
+    pauseEvent(evt);
     clearPoints()
     shapeFollow = true
     whichClass = document.getElementById(shapeID).getAttribute("class")
@@ -152,7 +161,10 @@ function shapeStartMove(evt, shapeID) {
     document.getElementById(shapeID).setAttribute("onmouseup", "shapeStop(id)")
 
 }
+
 function shapeMove(evt, shapeID) {
+    evt = evt || window.event;
+    pauseEvent(evt);
     whichClass = document.getElementById(shapeID).getAttribute("class")
     if (whichClass == "rect" && shapeFollow == true) {
         // Move Rectangle
@@ -183,6 +195,7 @@ function shapeMove(evt, shapeID) {
         document.getElementById(shapeID).setAttribute("cy", evt.clientY - fixY)
     }
 }
+
 function shapeStop(shapeID) {
     shapeFollow = false
     whichClass = document.getElementById(shapeID).getAttribute("class")
@@ -192,10 +205,14 @@ function shapeStop(shapeID) {
     document.getElementById(shapeID).setAttribute("onmousemove", "")
     document.getElementById(shapeID).setAttribute("onmouseup", "")
 }
+
 function pointFollow() {
     follow = true
 }
+
 function pointMove(evt, CP, shapeID) {
+    evt = evt || window.event;
+    pauseEvent(evt);
     if (follow) {
         whichClass = document.getElementById(shapeID).getAttribute("class")
         if (whichClass == "rect" || whichClass == "tri") {
@@ -339,6 +356,7 @@ function pointMove(evt, CP, shapeID) {
         }
     }
 }
+
 function pointStop() {
     follow = false
     document.getElementById("B1").setAttribute("fill", "none")
@@ -349,6 +367,7 @@ function pointStop() {
     }
 
 }
+
 function clearPoints() {
     if (cpCount > 0) {
         for (i = 0; i < cpCount; i++) {
@@ -357,6 +376,7 @@ function clearPoints() {
     }
     cpCount = 0
 }
+
 function addPoints(shapeID) {
     whichClass = document.getElementById(shapeID).getAttribute("class")
     clearPoints()
@@ -487,7 +507,73 @@ function addPoints(shapeID) {
         }
     }
 }
+
+function draw() {
+    var svg = document.getElementById("mySVG");
+    svg.setAttribute("onmousedown", "startdraw(evt)");
+
+
+
+}
+
+function startdraw(evt) {
+    evt = evt || window.event;
+    pauseEvent(evt);
+    makeDot(evt.clientX, evt.clientY - fixY, 6, "black");
+    var svg = document.getElementById("mySVG");
+    svg.setAttribute("onmousemove", "startdraw(evt)");
+    svg.setAttribute("onmouseup", "stopDraw(evt)");
+    //alert(evt.clientX + " " + evt.clientY)
+
+}
+
+function drawimg(evt) {
+    evt = evt || window.event;
+    pauseEvent(evt);
+    makeDot(evt.clientX, evt.clientY - fixY, 6, "black");
+
+    //alert(evt.clientX + " " + evt.clientY)
+
+}
+
+function stopDraw(evt) {
+    evt = evt || window.event;
+    pauseEvent(evt);
+    var svg = document.getElementById("mySVG");
+    svg.setAttribute("onmousemove", null);
+    svg.setAttribute("onmouseup", null);
+    //alert(evt.clientX + " " + evt.clientY)
+
+}
+function makeDot(x, y, r, color) {
+    var dot = document.createElementNS(xmlns, "circle");
+    var svg = document.getElementById("mySVG");
+    dot.setAttributeNS(null, "fill", color);
+    dot.setAttributeNS(null, "r", r);
+    dot.setAttributeNS(null, "cx", x);    dot.setAttributeNS(null, "cy", y);
+    svg.appendChild(dot)
+}
+
+function drawItem() {
+    this.dotAry = [];
+    this.drawIt = function () {
+
+
+    };
+    this.onclick = function () {
+
+    }
+}
+
+function dot(x,y) {
+    this.x = x;
+    this.y = y;
+}
+
+
 function startShape(evt) {
+    evt = evt || window.event;
+    pauseEvent(evt);
     if (evt.target.nodeName == "svg" && follow == false) {
         clearPoints()
         if (chosenShape == "rect") {
@@ -615,7 +701,10 @@ function startShape(evt) {
         }
     }
 }
+
 function drawShape(evt) {
+    evt = evt || window.event;
+    pauseEvent(evt);
     if (chosenShape == "rect") {
         // Drawing Rectangle in progress
         x = document.getElementById(currentShape).getAttribute("d")
@@ -699,6 +788,7 @@ function drawShape(evt) {
 
     }
 }
+
 function finishShape() {
     document.getElementById("mySVG").setAttribute("onmousemove", null)
     document.getElementById("mySVG").setAttribute("onmouseup", null)

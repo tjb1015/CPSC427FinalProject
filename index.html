@@ -1,33 +1,35 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-
+<!DOCTYPE HTML PUBLIC"-/W3C//DTD XHTML 1.1">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>Drawing Package</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Drawing Package</title>
 
-<!-- Links to styling, javascript, css, and jquery -->
-<link href='http://fonts.googleapis.com/css?family=Fanwood+Text' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" type="text/css" href="css/style.css" />
-<script type="text/javascript" src="js/menu.js"></script>
-<script type="text/javascript" src="js/magic.js"></script>
-<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <!-- Links to styling, javascript, css, and jquery -->
+    <link href='http://fonts.googleapis.com/css?family=Fanwood+Text' rel='stylesheet' type='text/css' />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script type="text/javascript" src="js/menu.js"></script>
+    <script type="text/javascript" src="js/magic.js"></script>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 
 </head>
 
-<body>
-<div id="main" class="title" style="cursor:pointer">
-<ul>
-<li><a onclick="fileMenu()">File |</a></li>
-<li><a onclick="brushMenu()">Brush |</a></li>
-<li><a onclick="shapesMenu()">Shapes |</a></li>
-<li><a onclick="editMenu()">Edit </a></li>
-</ul>
-</div>
-<div id="secondary" class="toolbar" style="cursor:pointer">
-     
-</div>
+<body onload="gridOne()">
+    <div id="main" class="title" style="cursor:pointer">
+        <ul>
+            <li><a onclick="fileMenu()">File |</a></li>
+            <li><a onclick="brushMenu()">Brush |</a></li>
+            <li><a onclick="shapesMenu()">Shapes |</a></li>
+            <li><a onclick="editMenu()">Edit |</a></li>
+            <li><a onclick="grid()">Grid </a></li>
+        </ul>
 
- <svg class="canvas">
-	
- </svg>
-</body> 
+    </div>
+    <div id="secondary" class="toolbar" style="cursor:pointer">
+
+    </div>
+
+    <svg class="canvas" id="mySVG" width="100%" height="100%">
+    </svg>
+</body>
 
 </html>
