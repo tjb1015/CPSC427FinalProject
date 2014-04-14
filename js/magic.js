@@ -570,7 +570,49 @@ function dot(x,y) {
     this.y = y;
 }
 
+function distanceTwoPoints(point1, point2) // distence between two points  <-------->
+{
+    var a = Math.abs(Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2)));
+    //alert (a)
+    return a;
+}
+function iPoint(p1, p2, p3, p4)//finds the intersection point given four point on two different lines <----->
+    // p1 and p2 on line one, p3 and p4 on line two. Returns 0,0 if parallel
+{
+    //alert("in funk")
+    var iP = new point(0, 0);
+    //alert("var iP")
+    var denom = ((p1.x - p2.x) * (p3.y - p4.y)) - ((p1.y - p2.y) * (p3.x - p4.x));
 
+    //alert("denom: " + denom)
+    if (denom != 0) {
+        iP.x = (((p1.x * p2.y - p1.y * p2.x) * (p3.x - p4.x)) - ((p1.x - p2.x) * (p3.x * p4.y - p3.y * p4.x))) / denom;
+        iP.y = (((p1.x * p2.y - p1.y * p2.x) * (p3.y - p4.y)) - ((p1.y - p2.y) * (p3.x * p4.y - p3.y * p4.x))) / denom;
+        return iP;
+    } else
+        return iP
+
+}
+function placeDot(p, c) { // this was used just for testing placing a dot at a pont and color 
+    var rect = document.createElementNS(xmlns, "circle"); //creates a rectangle to represent the connecting nodes
+    rect.setAttributeNS(null, "cx", p.x);
+    rect.setAttributeNS(null, "cy", p.y);
+    rect.setAttributeNS(null, "r", 8);
+    rect.setAttributeNS(null, "fill", c);
+    rect.setAttributeNS(null, "stroke", "black");
+    rect.setAttributeNS(null, "stroke-width", 2);
+    S.appendChild(rect);
+}
+function placeLine(p1, p2) { // used for testing places a line between two points
+    var rect = document.createElementNS(xmlns, "line"); //creates a rectangle to represent the connecting nodes
+    rect.setAttributeNS(null, "x1", p1.x);
+    rect.setAttributeNS(null, "y1", p1.y);
+    rect.setAttributeNS(null, "x2", p2.x);
+    rect.setAttributeNS(null, "y2", p2.y);
+    rect.setAttributeNS(null, "stroke", "black");
+    rect.setAttributeNS(null, "stroke-width", 2);
+    S.appendChild(rect);
+}
 function startShape(evt) {
     evt = evt || window.event;
     pauseEvent(evt);
