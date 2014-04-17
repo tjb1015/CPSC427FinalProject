@@ -2,7 +2,7 @@
 var xmlns = "http://www.w3.org/2000/svg";
 var xlink = "http://www.w3.org/1999/xlink";
 var svg = document.getElementById("mySVG");
-
+var drawItems = [];
 function pauseEvent(e) {
     if (e.stopPropagation) e.stopPropagation();
     if (e.preventDefault) e.preventDefault();
@@ -509,29 +509,23 @@ function addPoints(shapeID) {
 }
 
 function draw() {
-    var svg = document.getElementById("mySVG");
-    svg.setAttribute("onmousedown", "startdraw(evt)");
-
-
-
+    
+    drawItems[drawItems.length == 0 ? drawItems.length : drawItems.length - 1] = new drawItem;
+   alert()
+    
 }
-
+/*
 function startdraw(evt) {
     evt = evt || window.event;
     pauseEvent(evt);
     makeDot(evt.clientX, evt.clientY - fixY, 6, "black");
-    var svg = document.getElementById("mySVG");
-    svg.setAttribute("onmousemove", "startdraw(evt)");
-    svg.setAttribute("onmouseup", "stopDraw(evt)");
-    //alert(evt.clientX + " " + evt.clientY)
-
 }
 
 function drawimg(evt) {
     evt = evt || window.event;
     pauseEvent(evt);
     makeDot(evt.clientX, evt.clientY - fixY, 6, "black");
-
+    new drawItem.drawIt()
     //alert(evt.clientX + " " + evt.clientY)
 
 }
@@ -553,13 +547,39 @@ function makeDot(x, y, r, color) {
     dot.setAttributeNS(null, "cx", x);    dot.setAttributeNS(null, "cy", y);
     svg.appendChild(dot)
 }
-
+*/
 function drawItem() {
     this.dotAry = [];
-    this.drawIt = function () {
+    this.svg = document.getElementById("mySVG");
+    this.svg.addEventListener("mousedown", drawItems[0].drawIt(), false);
+   // this.svg.addEventListener("mousemove", drawItems[drawItems.length - 1].drawIt(), false);
+    this.svg.addEventListener("mouseup", function () {
+        this.svg.addEventListener("mousedown", null, false);
+        this.svg.addEventListener("mousemove", null, false);
+        this.svg.addEventListener("mouseup", null, false);
+    }, false);
+    this.path = document.createElementNS(xmlns, "path");
+    this.path.stroke = "black";
+    this.path.stroke_width = "3";
+    this.path.fill = "none";
+    this.path.d = "M";
+    this.svg.appendChild(this.path)
+    this.setColor = function (color) {
 
-
+    }
+    this.drawIt = function (evt) {
+        evt = evt || window.event;
+        pauseEvent(evt);
+        this.dotAry[this.dotAry.length == 0 ? this.dotAry.length : this.dotAry.length - 1] = new doe(evt.clientX - fixX, evt.clientY - fixY);
+        this.display()
     };
+    this.display = function () {
+        this.path.d = "M"
+        for (var i = 0; i < this.dotAry.length; i++) {
+            this.path.d += this.dotAry[i].x + " " + this.dotAry[i].x
+        }
+
+    }
     this.onclick = function () {
 
     }
