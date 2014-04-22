@@ -1,35 +1,47 @@
-﻿<!DOCTYPE HTML PUBLIC"-/W3C//DTD XHTML 1.1">
-<html xmlns="http://www.w3.org/1999/xhtml">
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Drawing Package</title>
 
     <!-- Links to styling, javascript, css, and jquery -->
-    <link href='http://fonts.googleapis.com/css?family=Fanwood+Text' rel='stylesheet' type='text/css' />
+    <link href='http://fonts.googleapis.com/css?family=Fanwood+Text' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="css/style.css" />
     <script type="text/javascript" src="js/menu.js"></script>
     <script type="text/javascript" src="js/magic.js"></script>
     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
 
 </head>
 
-<body onload ="gridOne()">
+<body onload="gridOne()">
     <div id="main" class="title" style="cursor:pointer">
-        <ul>
-            <li><a onclick="fileMenu()">File |</a></li>
-            <li><a onclick="brushMenu()">Brush |</a></li>
-            <li><a onclick="shapesMenu()">Shapes |</a></li>
-            <li><a onclick="editMenu()">Edit |</a></li>
-            <li><a onclick="grid()">Grid </a></li>
+        <ul id="Menu" class="menu">
+            <li><a onclick="fileMenu()">&nbsp; File</a></li>
+            <li><a onclick="brushMenu()">&nbsp; Brush</a></li>
+            <li><a onclick="shapesMenu()">&nbsp; Shapes</a></li>
+            <li><a onclick="grid()">&nbsp; Grid</a></li>
         </ul>
 
     </div>
+    <script type="text/javascript">
+        var make_button_active = function () {
+            var siblings = ($(this).siblings());
+            siblings.each(function (index) {
+                $(this).removeClass('active');
+            }
+            )
+            $(this).addClass('active');
+        }
+        $(document).ready(
+          function () {
+              $(".menu li").click(make_button_active);
+          }
+        )
+    </script>
     <div id="secondary" class="toolbar" style="cursor:pointer">
-
     </div>
-
     <svg class="canvas" id="mySVG" width="100%" height="100%">
+
     </svg>
 </body>
-
 </html>
