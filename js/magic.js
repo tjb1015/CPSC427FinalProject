@@ -121,8 +121,9 @@ function chooseShape(shape) {
     else if (chosenShape == "elli") {
 
         document.getElementById("mySVG").setAttribute("onmousedown", "startShape(evt)")
+    } else if (chosenShape == "free") {
+        drawItem()
     }
-
 }
 
 function shapeStartMove(evt, shapeID) {

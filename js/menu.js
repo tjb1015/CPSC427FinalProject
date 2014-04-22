@@ -36,7 +36,7 @@ function shapesMenu() {
     str += '<li><a onclick="chooseShape(\'elli\')"> ellipse  &emsp;</a></li>';
     str += '<li><a onclick="chooseShape(\'circ\')"> Circle &emsp;</a></li>';
     str += '<li><a onclick="line()"> Line &emsp; </a></li>';
-    str += '<li><a onclick="drawItem()"> Draw &emsp; </a></li>';
+    str += '<li><a onclick="chooseShape(\'free\')"> Draw &emsp; </a></li>';
     str += '<li><a onclick="bezier()"> Bezier Curve </a></li>';
     str += '</ul>';
     shapesDiv.innerHTML += str;
