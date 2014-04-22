@@ -2,7 +2,7 @@
 var xmlns = "http://www.w3.org/2000/svg";
 var xlink = "http://www.w3.org/1999/xlink";
 var svg = document.getElementById("mySVG");
-var drawItems = [];
+var freeDraw;
 function pauseEvent(e) {
     if (e.stopPropagation) e.stopPropagation();
     if (e.preventDefault) e.preventDefault();
@@ -507,82 +507,53 @@ function addPoints(shapeID) {
         }
     }
 }
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-function draw() {
-    
-    drawItems[drawItems.length == 0 ? drawItems.length : drawItems.length - 1] = new drawItem;
-   alert()
-    
-}
-/*
-function startdraw(evt) {
-    evt = evt || window.event;
-    pauseEvent(evt);
-    makeDot(evt.clientX, evt.clientY - fixY, 6, "black");
-}
 
-function drawimg(evt) {
-    evt = evt || window.event;
-    pauseEvent(evt);
-    makeDot(evt.clientX, evt.clientY - fixY, 6, "black");
-    new drawItem.drawIt()
-    //alert(evt.clientX + " " + evt.clientY)
-
-}
-
-function stopDraw(evt) {
-    evt = evt || window.event;
-    pauseEvent(evt);
-    var svg = document.getElementById("mySVG");
-    svg.setAttribute("onmousemove", null);
-    svg.setAttribute("onmouseup", null);
-    //alert(evt.clientX + " " + evt.clientY)
-
-}
-function makeDot(x, y, r, color) {
-    var dot = document.createElementNS(xmlns, "circle");
-    var svg = document.getElementById("mySVG");
-    dot.setAttributeNS(null, "fill", color);
-    dot.setAttributeNS(null, "r", r);
-    dot.setAttributeNS(null, "cx", x);    dot.setAttributeNS(null, "cy", y);
-    svg.appendChild(dot)
-}
-*/
 function drawItem() {
-    this.dotAry = [];
-    this.svg = document.getElementById("mySVG");
-    this.svg.addEventListener("mousedown", drawItems[0].drawIt(), false);
-   // this.svg.addEventListener("mousemove", drawItems[drawItems.length - 1].drawIt(), false);
-    this.svg.addEventListener("mouseup", function () {
-        this.svg.addEventListener("mousedown", null, false);
-        this.svg.addEventListener("mousemove", null, false);
-        this.svg.addEventListener("mouseup", null, false);
-    }, false);
-    this.path = document.createElementNS(xmlns, "path");
-    this.path.stroke = "black";
-    this.path.stroke_width = "3";
-    this.path.fill = "none";
-    this.path.d = "M";
-    this.svg.appendChild(this.path)
-    this.setColor = function (color) {
+    
+    var svg = document.getElementById("mySVG");
+
+
+    var path = document.createElementNS(xmlns, "path");
+    path.dotAry = [];
+    path.setAttributeNS(null, "stroke", "black");
+    path.setAttributeNS(null, "stroke_width", "5"); 
+    path.setAttributeNS(null, "fill", "none");
+    path.data = "M";
+    //svg.appendChild(path)
+    path.setColor = function (color) {
 
     }
-    this.drawIt = function (evt) {
+    path.drawIt = function (evt) {
         evt = evt || window.event;
         pauseEvent(evt);
-        this.dotAry[this.dotAry.length == 0 ? this.dotAry.length : this.dotAry.length - 1] = new doe(evt.clientX - fixX, evt.clientY - fixY);
-        this.display()
+        path.dotAry.push(new dot(evt.clientX, evt.clientY - fixY));
+        path.display()
     };
-    this.display = function () {
-        this.path.d = "M"
+    path.display = function () {
+        path.data = "M "
         for (var i = 0; i < this.dotAry.length; i++) {
-            this.path.d += this.dotAry[i].x + " " + this.dotAry[i].x
+            this.data += this.dotAry[i].x + " " + this.dotAry[i].y + " " 
         }
+        path.setAttributeNS(null, "d", path.data);
+    }
+    path.onclick = function () {
 
     }
-    this.onclick = function () {
 
-    }
+    svg.addEventListener("mousedown", function drawing() {
+        svg.appendChild(path)
+        path.drawIt
+        svg.addEventListener("mousemove", path.drawIt, false);
+        svg.addEventListener("mouseup", function stopDraw() {
+            var svg = document.getElementById("mySVG");
+            svg.removeEventListener("mousemove", path.drawIt, false);
+            svg.removeEventListener("mouseup", stopDraw, false);
+            svg.removeEventListener("mousedown", drawing, false);
+            drawItem()
+        }, false);
+    }, false);
 }
 
 function dot(x,y) {
@@ -632,7 +603,8 @@ function placeLine(p1, p2) { // used for testing places a line between two point
     rect.setAttributeNS(null, "stroke", "black");
     rect.setAttributeNS(null, "stroke-width", 2);
     S.appendChild(rect);
-}
+}
+
 function startShape(evt) {
     evt = evt || window.event;
     pauseEvent(evt);
