@@ -100,10 +100,11 @@ displacementY = new Array();
 function chooseShape(shape) {
     chosenShape = shape
     // Resets all choices
-
+    var svg = document.getElementById("mySVG")
     document.getElementById("mySVG").setAttribute("onmousedown", null)
     document.getElementById("mySVG").setAttribute("onmousemove", null)
     document.getElementById("mySVG").setAttribute("onmouseup", null)
+
     clearPoints()
 
     if (chosenShape == "rect") {
@@ -521,7 +522,7 @@ function drawItem() {
     path.setAttributeNS(null, "stroke_width", "5"); 
     path.setAttributeNS(null, "fill", "none");
     path.data = "M";
-    //svg.appendChild(path)
+ 
     path.setColor = function (color) {
 
     }
@@ -541,19 +542,19 @@ function drawItem() {
     path.onclick = function () {
 
     }
-
-    svg.addEventListener("mousedown", function drawing() {
+    
+    svg.onmousedown= function (evt) {
         svg.appendChild(path)
         path.drawIt
-        svg.addEventListener("mousemove", path.drawIt, false);
-        svg.addEventListener("mouseup", function stopDraw() {
+        svg.onmousemove= path.drawIt;
+        svg.onmouseup = function (evt) {
             var svg = document.getElementById("mySVG");
-            svg.removeEventListener("mousemove", path.drawIt, false);
-            svg.removeEventListener("mouseup", stopDraw, false);
-            svg.removeEventListener("mousedown", drawing, false);
+            svg.setAttribute("onmousemove", null);
+            svg.setAttribute("onmouseup", null);
+            svg.setAttribute("onmousedown", null);
             drawItem()
-        }, false);
-    }, false);
+        };
+    };
 }
 
 function dot(x,y) {
