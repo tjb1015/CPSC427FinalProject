@@ -1,1233 +1,1148 @@
-﻿//svg namespace
-var svgNS = "http://www.w3.org/2000/svg";
-function pauseEvent(e) {
-    if (e.stopPropagation) e.stopPropagation();
-    if (e.preventDefault) e.preventDefault();
-    e.cancelBubble = true;
-    e.returnValue = false;
-    return false;
-}//used example from the internet http://stackoverflow.com/questions/5429827/how-can-i-prevent-text-element-selection-with-cursor-drag
-
-//makes grid
-function gridOne() {
-    var myDiv = document.getElementById('mySVG');
-    hgt = myDiv.clientHeight
-    finhgt = hgt / 10
-    Content = ["", "100", "200", "300", "400", "500", "600", "700", "800", "900", "1000", "1100", "1200", "1300", "1400", "1500", "1600"]
-
-    //running into crossbroswer issue, in regards to a grid, and sizing issues.
-
-
-    for (var i = 0; i < finhgt; i++) {
-
-
-        var myGrid = document.createElementNS(svgNS, 'line')
-        myGrid.setAttribute("id", "linearY")
-        myGrid.setAttribute("stroke-width", "1")
-        myGrid.setAttribute("stroke", "lightgray")
-        myGrid.setAttribute("x1", 0)
-        myGrid.setAttribute("x2", "100%")
-        myGrid.setAttribute("y1", i * 100)
-        myGrid.setAttribute("y2", i * 100)
-        document.getElementById("mySVG").appendChild(myGrid)
-
-        var mygrid = document.createElementNS(svgNS, 'line')
-        mygrid.setAttribute("id", "linearX")
-        mygrid.setAttribute("stroke-width", "1")
-        mygrid.setAttribute("stroke", "lightgray")
-        mygrid.setAttribute("x1", i * 100)
-        mygrid.setAttribute("x2", i * 100)
-        mygrid.setAttribute("y1", 0)
-        mygrid.setAttribute("y2", "100%")
-        document.getElementById("mySVG").appendChild(mygrid)
-
-        var yT = document.createElementNS(svgNS, "text")
-        yT.setAttribute("font-size", 15)
-        yT.setAttribute("font-weight", "bold")
-        yT.setAttribute("fill", "black")
-        yT.setAttribute("x", 0)
-        yT.setAttribute("y", 15 + i * 100)
-        yT.textContent = Content[i]
-        document.getElementById("mySVG").appendChild(yT)
-
-        var xT = document.createElementNS(svgNS, "text")
-        xT.setAttribute("font-size", 15)
-        xT.setAttribute("font-weight", "bold")
-        xT.setAttribute("fill", "black")
-        xT.setAttribute("x", 2.5 + i * 100)
-        xT.setAttribute("y", 13)
-        xT.textContent = Content[i]
-        document.getElementById("mySVG").appendChild(xT)
-
+﻿
+var xmlns="http://www.w3.org/2000/svg"
+var place;
+var newpath;
+var newcurve;
+var grid=false
+var thingclicked=false
+var toolchosen="Rectangle"
+var Chosen; //the object that has been selected with a mouseclick
+var PG; //a group holding the physical points of a polygon
+var PGon=false
+var count=0;
+var gridsize=25
+var oldX, oldY
+var first=true
+var veryfirst=true
+var scalestring=" scale(1,1)"
+var gridcolor="#ff8888"
+colors=new Array("#f88","#ff8","#8ff","#80f")
+var globalcentral
+offsets=new Array(0,.45,.55,1)
+widgnames=new Array("Hue","Sat","Bri","Tra")
+var w1=w2=.5
+xmax=0
+xmin=4000
+ymax=0
+ymin=4000
+edge=2
+var A=new Array()
+function startup(evt){
+    //svgDocument = evt.getTarget().getOwnerDocument();
+    place = document.getElementById("place");
+    bigR = document.getElementById("bigR");
+    STEL = document.getElementById("STEL");
+    EL = document.getElementById("EL");
+    newline = document.createElementNS(xmlns,"line");
+    newline.setAttribute("id", "L"); 
+    place.setAttribute("onkeyup","keyHandle(evt)")
+    hidenewline()
+    newline.setAttribute("stroke", "black");
+    newline.setAttribute("stroke-width", "1");
+    place.appendChild(newline);
+    newcurve = document.createElementNS(xmlns,"path");
+    newcurve.setAttribute("id", "C"); 
+    newcurve.setAttribute("stroke", "blue");
+    newcurve.setAttribute("fill", "none");
+    newcurve.setAttribute("stroke-width", "1");
+    place.appendChild(newcurve);
+    selectM = document.getElementById("selectM");
+    toolM = document.getElementById("toolM");
+    Marray=new Array(selectM,toolM)
+    BuildMenus(Marray)
+	
+}
+function detectHTML(v){
+    HTMLpresent=v
+}
+function hidenewline(){
+    newline.setAttribute("x1", 0); 
+    newline.setAttribute("y1", 0); 
+    newline.setAttribute("x2", 1); 
+    newline.setAttribute("y2", 1); 
+}
+function begin(evt){
+    if (PGon) place.removeChild(PG)
+    PGon=false
+    if (thingclicked){thingclicked=false;return}
+    if (veryfirst){newp("path"); veryfirst=false}
+    X=evt.clientX;
+    Y=evt.clientY;
+    if (grid){
+        X=Math.floor(X/gridsize)*gridsize+gridsize/2
+        Y=Math.floor(Y/gridsize)*gridsize+gridsize/2
     }
-
-    //some browser inconsistancy issues		
-    f = navigator.userAgent.search("Firefox");
-    O = navigator.userAgent.search("Opera")
-
-    if (f > -1) {
-        //brwsr = "Firefox";
+	
+    eval(toolchosen)()
+    oldX=X
+    oldY=Y
+}
+function Polyline(){
+	
+    if (first){
+        STEL.setAttribute("cx",X)
+        STEL.setAttribute("cy",Y)
+        first=false
+        count++
+        newp("path")
     }
-    else if (O > -1) {
-        //brwsr = "Opera";
+    else{
+        EL.setAttribute("cx",X)
+        EL.setAttribute("cy",Y)
     }
-
-    //alert(brwsr);
+    place.setAttribute("onmousemove","Polydraw(evt)")
+    STEL.setAttribute("onmousemove","Polydraw(evt)")
+    pathstring+=X+" "+Y+" "
+    newpath.setAttribute("d", pathstring);
+    first=false
+}
+function newp(p){
+    pathstring="M "
+    newpath = document.createElementNS(xmlns,p);
+    newpath.setAttribute("fill", "none");
+    CommonProps(newpath)
+}
+function Polydraw(evt){
+    Commondraw(evt)
+    newline.setAttribute("x1", oldX); 
+    newline.setAttribute("y1", oldY); 
+    newline.setAttribute("x2", X); 
+    newline.setAttribute("y2", Y); 
+	
+}
+function Xolygon(){
+    newxoly = document.createElement(xmlns,"path");
+    count++
+	
+    //starstring="M "+X+" "+Y+" "+100+" "+200+" "+200+" "+100+" z"
+    xolystring="M "+X+" "+Y+" "
+    n=Math.ceil(Math.random()*8)+2
+    for (i=0;i<n;i++){
+        nx=Math.floor(Math.random()*600)
+        ny=Math.floor(Math.random()*400)
+        xolystring+=nx+" "+ny+" "
+    }
+    xolystring+="z"
+    newxoly.setAttribute("fill", color());
+    newxoly.setAttribute("d", xolystring);
+    CommonProps(newxoly)
+    place.setAttribute("onmouseup","doneCommon(newxoly)")
+    first=false
+}
+function Ngon(){
+    Star(1)
+}
+function Star(permute){
+	
+    newstar = document.createElementNS(xmlns,"path");
+    count++
+    //alert(count)
+    starstring="M "
+    if (!permute==1) {
+        n=Math.floor(Math.random()*12)+5
+        permute=Math.floor(Math.random()*(n-4))+3
+        if (Math.floor(n/permute)*permute==n) n++
+		
+		
+    }
+    else 	n=Math.floor(Math.random()*8)+3
+    radius=100
+    Ang=2*Math.PI/n
+    Ax=new Array(n)
+    Ay=new Array(n)
+    for (i=0;i<n;i++){
+		
+        Ax[i]=X+Math.ceil(radius*Math.cos(i*Ang))
+        Ay[i]=Y+Math.ceil(radius*Math.sin(i*Ang))
+    }
+    for (i=0;i<n;i++){
+        starstring+=Ax[(i*permute)%n]+" "+Ay[(i*permute)%n]+" "
+    }
+    starstring+="z"
+    newstar.setAttribute("fill", color());
+    newstar.setAttribute("d", starstring);
+    CommonProps(newstar)
+    //place.setAttribute("onmousemove","Stardraw(evt)")
+    place.setAttribute("onmouseup","doneCommon(newstar)")
+    first=false
+}
+function Rectangle(x,y){
+    newrect = document.createElementNS(xmlns,"path");
+    count++
+    var s="M "+x+" "+y+" "+(x+5)+" "+y+" "+(x+5)+" "+(y+5)+" "+x+" "+(y+5)+" z"
+    newrect.setAttribute("d", s); 
+    newrect.setAttribute("fill", color());
+    CommonProps(newrect)
+    place.setAttribute("onmousemove","Rectdraw(evt)")
+    place.setAttribute("onmouseup","doneCommon(newrect)")
+    first=false
+}
+function Rectdraw(evt){
+    Commondraw(evt)
+    var s="M "+oldX+" "+oldY+" "+(X)+" "+oldY+" "+(X)+" "+(Y)+" "+oldX+" "+(Y)+" z"
+    newrect.setAttribute("d", s); 
+    place.setAttribute("onmouseup","doneCommon(newrect)")
 }
 
-//clears grid with jquery remove function
-function clearGrid() {
-    $('line').remove();
-    $('text').remove();
+function Ellipse(x,y){
+    newelli = document.createElementNS(xmlns,"ellipse");
+    count++
+    newelli.setAttribute("cx", x); 
+    newelli.setAttribute("cy", y); 
+    newelli.setAttribute("rx", 1); 
+    newelli.setAttribute("ry", 1); 
+    newelli.setAttribute("fill", color());
+    CommonProps(newelli)
+    place.setAttribute("onmousemove","Ellidraw(evt)")
+    place.setAttribute("onmouseup","doneCommon(newelli)")
+    first=false
+}
+function Ellidraw(evt){
+    Commondraw(evt)
+    newelli.setAttribute("cx", oldX); 
+    newelli.setAttribute("cy", oldY); 
+    newx=Math.abs(X-oldX)
+    newy=Math.abs(Y-oldY)
+    offx=oldX-X
+    offy=oldY-Y
+    newelli.setAttribute("cx", X) //for controllling from center
+    newelli.setAttribute("cy", Y)
+    newelli.setAttribute("rx", newx)
+    newelli.setAttribute("ry", newy);
+}
+function Freehand(){
+    place.setAttribute("onmousemove","Freedraw(evt)")
+    startX=X
+    startY=Y
+    count++
+    pathData=sp="M "+X+" "+Y
+    newpath = svgDocument.createElement("path");
+    newpath.setAttribute("d", sp)
+    CommonProps(newpath)
+    newpath.setAttribute("onmouseup","Freedone(newpath)")
+    newpath.setAttribute("opacity", 1.0);
+    newpath.setAttribute("stroke-width", "2");
+    newpath.setAttribute("fill", "none");
+    first=false
 }
 
-//creating shapes
-xmlns = "http://www.w3.org/2000/svg"
-xlink = "http://www.w3.org/1999/xlink"
-
-chosenShape = ""
-recCount = 0, triCount = 0, circCount = 0, elliCount = 0, lineCount = 0, ngonCount = 0
-pentCount = 0, octCount = 0, arrowCount = 0
-cpCount = 0
-follow = false
-shapeFollow = false
-remX = 0, remY = 0
-fixY = 65
-
-displacementX = new Array();
-directionX = new Array();
-
-displacementY = new Array();
-directionY = new Array();
-
-function chooseShape(shape) {
-    chosenShape = shape
-
-
-    document.getElementById("mySVG").setAttribute("onmousedown", null)
-    document.getElementById("mySVG").setAttribute("onmousemove", null)
-    document.getElementById("mySVG").setAttribute("onmouseup", null)
-    clearPoints()
-
-    document.getElementById("mySVG").setAttribute("onmousedown", "startShape(evt)")
+function Freedraw(evt){
+    x=evt.clientX
+    y=evt.clientY
+    pathData+= " " + x + " " + y;
+    newpath.setAttribute("d", pathData);
 }
 
-function startShape(evt) {
-    if (evt.target.nodeName == "svg" && follow == false) {
-        clearPoints()
-        if (chosenShape == "rect") {
-            // Let's create a rectangle!
-            var R = document.createElementNS(xmlns, "path")
-            currentShape = "rect" + recCount
-            R.setAttributeNS(null, "id", currentShape)
-            recCount++
-            R.setAttributeNS(null, "class", "rect")
+function Freedone(O){
+	
 
-            // Set Sizes
-            firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
-            R.setAttributeNS(null, "d", "M " + firstCoord)
+    O.setAttribute("onmouseover","seepath("+count+",'over')")
+    O.setAttribute("onmouseout","seepath("+count+",'out')")
+    O.setAttribute("onmousedown","grab(evt,'P"+count+"')")
+    place.setAttribute("onmousemove",null)
 
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            R.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            R.setAttributeNS(null, "stroke", "black")
-
-            // Set Functions
-            R.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            R.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Rect
-            document.getElementById("mySVG").appendChild(R)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
-        } else if (chosenShape == "free") {
-            drawItem()
-        }
-        else if (chosenShape == "tri") {
-            // Time for the Triangle
-            var T = document.createElementNS(xmlns, "path")
-            currentShape = "tri" + triCount
-            T.setAttributeNS(null, "id", currentShape)
-            triCount++
-            T.setAttributeNS(null, "class", "tri")
-
-            // Set Sizes
-            firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
-            remY = evt.clientY - fixY
-            T.setAttributeNS(null, "d", "M " + firstCoord)
-
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            T.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            T.setAttributeNS(null, "stroke", "black")
-
-            // Set Functions
-            T.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            T.setAttribute("onclick", "editMenu(chosenShape)")
-
-
-            // Add Rect
-            document.getElementById("mySVG").appendChild(T)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
-        }
-        else if (chosenShape == "circ") {
-            // You spin me round right baby right round
-            var C = document.createElementNS(xmlns, "circle")
-            currentShape = "circ" + circCount
-            C.setAttributeNS(null, "id", currentShape)
-            circCount++
-            C.setAttributeNS(null, "class", "circ")
-
-            // Set Sizes
-            remX = evt.clientX
-            remY = evt.clientY - fixY
-            C.setAttributeNS(null, "cx", evt.clientX)
-            C.setAttributeNS(null, "cy", evt.clientY - fixY)
-            C.setAttributeNS(null, "r", "1")
-
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            C.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            C.setAttributeNS(null, "stroke", "black")
-
-            // Set Functions
-            C.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            C.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Circle
-            document.getElementById("mySVG").appendChild(C)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
-        }
-        else if (chosenShape == "elli") {
-            // Ellipse: like a circle, but not
-            var E = document.createElementNS(xmlns, "ellipse")
-            currentShape = "elli" + elliCount
-            E.setAttributeNS(null, "id", currentShape)
-            elliCount++
-            E.setAttributeNS(null, "class", "elli")
-
-            // Set Sizes
-            remX = evt.clientX
-            remY = evt.clientY - fixY
-            E.setAttributeNS(null, "cx", evt.clientX)
-            E.setAttributeNS(null, "cy", evt.clientY - fixY)
-            E.setAttributeNS(null, "rx", "1")
-            E.setAttributeNS(null, "ry", "1")
-
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            E.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            E.setAttributeNS(null, "stroke", "black")
-
-            // Set Functions
-            E.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            E.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Circle
-            document.getElementById("mySVG").appendChild(E)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
-        }
-        else if (chosenShape == "line") {
-            // Let's start a Line!
-            var L = document.createElementNS(xmlns, "path")
-            currentShape = "line" + lineCount
-            L.setAttributeNS(null, "id", currentShape)
-            lineCount++
-            L.setAttributeNS(null, "class", "line")
-
-            // Set Sizes
-            firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
-
-            L.setAttributeNS(null, "d", "M " + firstCoord)
-
-            // Black Stroke
-            L.setAttributeNS(null, "stroke", "black")
-            L.setAttributeNS(null, "stroke-width", "4")
-
-            // Set Functions
-            L.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            L.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Rect
-            document.getElementById("mySVG").appendChild(L)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
-        }
-        else if (chosenShape == "ngon") {
-            // Brace for NGon, To Infinity and Beyond!
-            var N = document.createElementNS(xmlns, "path")
-            currentShape = "ngon" + ngonCount
-            N.setAttributeNS(null, "id", currentShape)
-            ngonCount++
-            N.setAttributeNS(null, "class", "ngon")
-
-            // Set Sizes
-            firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
-            secondCoord = (evt.clientX + 1).toString() + " " + (evt.clientY - fixY + 1).toString()
-            N.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
-
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            N.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            N.setAttributeNS(null, "stroke", "black")
-
-            // Black Stroke
-            N.setAttributeNS(null, "stroke", "black")
-            N.setAttributeNS(null, "stroke-width", "1")
-
-            // Edit Menu
-            N.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add NGon
-            document.getElementById("mySVG").appendChild(N)
-            document.getElementById("mySVG").setAttribute("onmousedown", "addNgonCorner(evt)")
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
-        }
-        else if (chosenShape == "pent") {
-            // The Symbol of the Beast
-            var P = document.createElementNS(xmlns, "path")
-            currentShape = "pent" + pentCount
-            P.setAttributeNS(null, "id", currentShape)
-            pentCount++
-            P.setAttributeNS(null, "class", "pent")
-
-            // Set Sizes
-            remX = evt.clientX
-            remY = evt.clientY - fixY
-            firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
-            secondCoord = (evt.clientX + 1).toString() + " " + (evt.clientY - fixY + 1).toString()
-            P.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
-
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            P.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            P.setAttributeNS(null, "stroke", "black")
-
-            // Black Stroke
-            P.setAttributeNS(null, "stroke", "black")
-            P.setAttributeNS(null, "stroke-width", "1")
-
-            // Function time
-            P.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            P.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Pentagon
-            document.getElementById("mySVG").appendChild(P)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
-        }
-        else if (chosenShape == "oct") {
-            // Stop Sign
-            var O = document.createElementNS(xmlns, "path")
-            currentShape = "oct" + octCount
-            O.setAttributeNS(null, "id", currentShape)
-            octCount++
-            O.setAttributeNS(null, "class", "oct")
-
-            // Set Sizes
-            remX = evt.clientX
-            remY = evt.clientY - fixY
-            firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
-            secondCoord = (evt.clientX + 1).toString() + " " + (evt.clientY - fixY + 1).toString()
-            O.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
-
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            O.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            O.setAttributeNS(null, "stroke", "black")
-
-            // Black Stroke
-            O.setAttributeNS(null, "stroke", "black")
-            O.setAttributeNS(null, "stroke-width", "1")
-
-            // Function time
-            O.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            O.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Pentagon
-            document.getElementById("mySVG").appendChild(O)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
-        }
-        else if (chosenShape == "arrow") {
-            // Arrow head
-            var A = document.createElementNS(xmlns, "path")
-            currentShape = "arrow" + arrowCount
-            A.setAttributeNS(null, "id", currentShape)
-            arrowCount++
-            A.setAttributeNS(null, "class", "arrow")
-
-            // Set Sizes
-            remX = evt.clientX
-            remY = evt.clientY - fixY
-
-            firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
-            secondCoord = (evt.clientX + 1).toString() + " " + (evt.clientY - fixY + 1).toString()
-            A.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
-
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            A.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            A.setAttributeNS(null, "stroke", "black")
-
-            // Black Stroke
-            A.setAttributeNS(null, "stroke", "black")
-            A.setAttributeNS(null, "stroke-width", "1")
-
-            // Function time
-            A.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            A.setAttribute("onclick", "editMenu(chosenShape)")
-
-
-            // Add Arrow
-            document.getElementById("mySVG").appendChild(A)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
-        }
+    Chosen=O
+    Average(false)
+    Average(false)
+    //Smooth(3)
+    first=true
+}
+function CommonProps(O){
+    O.setAttribute("id", "P"+count); 
+    O.setAttribute("stroke", "black");
+    O.setAttribute("stroke-width", 1);
+    O.setAttribute("opacity", .5);
+    O.setAttribute("onmousedown","grab(evt,'P"+count+"')")
+    place.appendChild(O);
+}
+function Commondraw(evt){
+    X=evt.clientX;
+    Y=evt.clientY;
+    if (grid){
+        X=Math.floor(X/gridsize)*gridsize+gridsize/2
+        Y=Math.floor(Y/gridsize)*gridsize+gridsize/2
     }
 }
-
-function drawShape(evt) {
-    if (chosenShape == "rect") {
-        // Drawing Rectangle in progress
-        x = document.getElementById(currentShape).getAttribute("d")
-        firstCordX = x.split(" ")[1]
-        firstCordY = x.split(" ")[2]
-
-        secondCordX = (evt.clientX).toString()
-        secondCordY = (evt.clientY - fixY).toString()
-
-        // New Coordinates
-        firstCord = firstCordX + " " + firstCordY
-        secondCord = firstCordX + " " + secondCordY
-        thirdCord = secondCordX + " " + secondCordY
-        fourthCord = secondCordX + " " + firstCordY
-
-        newDimension = "M " + firstCord + " L " + secondCord + " L " + thirdCord + " L " + fourthCord + " L " + firstCord
-
-        document.getElementById(currentShape).setAttribute("d", newDimension)
-        document.getElementById("mySVG").setAttribute("onmouseup", "finishShape()")
+var opac=.5
+function seepath(c,o){
+    if (!first) return
+	
+    if (o=='over'){
+        opac=document.getElementById("P"+c).getAttribute("opacity")
+        document.getElementById("P"+c).setAttribute("stroke","red")
+        document.getElementById("P"+c).setAttribute("stroke-width",3)
+        document.getElementById("P"+c).setAttribute("opacity",3*opac/4)
+		
+        //Chosen=svgDocument.getElementById("P"+c)
     }
-    else if (chosenShape == "tri") {
-        // Drawing Triangle in progress
-        x = document.getElementById(currentShape).getAttribute("d")
-        firstCoordX = x.split(" ")[1]
-        firstCoordY = x.split(" ")[2]
-
-        secondCoordX = evt.clientX
-        secondCoordY = evt.clientY - fixY
-
-        if (remY > secondCoordY) {
-            // Coordinates Case A 
-            firstCoord = firstCoordX + " " + firstCoordY
-            secondCoord = secondCoordX + " " + firstCoordY
-            thirdCoord = ((secondCoordX + parseInt(firstCoordX)) / 2).toString() + " " + secondCoordY
-
-        }
-        else if (remY < secondCoordY) {
-            // Coordinates Case B
-            firstCoord = firstCoordX + " " + secondCoordY
-            secondCoord = secondCoordX + " " + secondCoordY
-            thirdCoord = ((secondCoordX + parseInt(firstCoordX)) / 2).toString() + " " + remY
-        }
-
-        newDimension = "M " + firstCoord + " L " + secondCoord + " L " + thirdCoord + " L " + firstCoord
-
-        document.getElementById(currentShape).setAttribute("d", newDimension)
-        document.getElementById("mySVG").setAttribute("onmouseup", "finishShape()")
-    }
-    else if (chosenShape == "circ") {
-        // Rounding the circle!
-        newCX = (remX + evt.clientX) / 2
-        newCY = (remY + evt.clientY - fixY) / 2
-
-        oneSide = (remY - evt.clientY - fixY) ^ 2
-        twoSide = (remX - evt.clientX) ^ 2
-
-        newR = Math.sqrt(Math.abs(oneSide)) + Math.sqrt(Math.abs(twoSide))
-
-        document.getElementById(currentShape).setAttribute("cx", newCX)
-        document.getElementById(currentShape).setAttribute("cy", newCY)
-        document.getElementById(currentShape).setAttribute("r", newR * 2)
-
-        document.getElementById("mySVG").setAttribute("onmouseup", "finishShape()")
-    }
-    else if (chosenShape == "elli") {
-        // Extending the Ellipse: Electric Boogaloo 2
-        newCX = (remX + evt.clientX) / 2
-        newCY = (remY + evt.clientY - fixY) / 2
-
-        oneSide = (remY - evt.clientY - fixY) ^ 2
-        twoSide = (remX - evt.clientX) ^ 2
-
-        newR = Math.sqrt(Math.abs(oneSide)) + Math.sqrt(Math.abs(twoSide))
-
-        document.getElementById(currentShape).setAttribute("cx", newCX)
-        document.getElementById(currentShape).setAttribute("cy", newCY)
-        document.getElementById(currentShape).setAttribute("rx", newR * 2.5)
-        document.getElementById(currentShape).setAttribute("ry", newR * 1.5)
-
-        document.getElementById("mySVG").setAttribute("onmouseup", "finishShape()")
-    }
-    else if (chosenShape == "line") {
-        // Stretching the Line
-        x = document.getElementById(currentShape).getAttribute("d")
-
-        firstCoordX = x.split(" ")[1]
-        firstCoordY = x.split(" ")[2]
-
-        secondCoordX = (evt.clientX).toString()
-        secondCoordY = (evt.clientY - fixY).toString()
-
-        newDimension = "M " + firstCoordX + " " + firstCoordY + " L " + secondCoordX + " " + secondCoordY
-
-        document.getElementById(currentShape).setAttribute("d", newDimension)
-        document.getElementById("mySVG").setAttribute("onmouseup", "finishShape()")
-    }
-    else if (chosenShape == "ngon") {
-        // Don't cut the corners!
-        x = document.getElementById(currentShape).getAttribute("d")
-        xLength = x.split(" ").length
-        newDimension = ""
-
-        for (i = 0; i < xLength - 2; i++) {
-            newDimension += x.split(" ")[i] + " "
-        }
-
-        newDimension += (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
-        document.getElementById(currentShape).setAttribute("d", newDimension)
-    }
-    else if (chosenShape == "pent") {
-        // Reticulating pentagon splines
-        x = document.getElementById(currentShape).getAttribute("d")
-        firstCoordX = x.split(" ")[1]
-        firstCoordY = x.split(" ")[2]
-
-        midX = [remX + evt.clientX] / 2
-        midY = [remY + evt.clientY - fixY] / 2
-
-        // Coordinates Case A 
-        firstCoord = (midX).toString() + " " + (remY).toString()
-        secondCoord = (evt.clientX).toString() + " " + (Math.abs((remY + midY) / 2)).toString()
-        thirdCoord = (Math.abs((evt.clientX + midX) / 2)).toString() + " " + (evt.clientY - fixY).toString()
-        fourthCoord = (Math.abs((remX + midX) / 2)).toString() + " " + (evt.clientY - fixY).toString()
-        fifthCoord = (remX).toString() + " " + (Math.abs((remY + midY) / 2)).toString()
-
-        newDimension = "M " + firstCoord + " L " + secondCoord + " L " + thirdCoord + " L " + fourthCoord + " L " + fifthCoord + " L " + firstCoord
-
-        document.getElementById(currentShape).setAttribute("d", newDimension)
-        document.getElementById("mySVG").setAttribute("onmouseup", "finishShape()")
-    }
-    else if (chosenShape == "oct") {
-        // Ocatgon, stop. Hammer time
-        x = document.getElementById(currentShape).getAttribute("d")
-        firstCoordX = x.split(" ")[1]
-        firstCoordY = x.split(" ")[2]
-
-        midX = (remX + evt.clientX) / 2
-        midY = (remY + evt.clientY - fixY) / 2
-
-        // Coordinates Case A 
-        firstCoord = (Math.abs((remX + midX) / 2)).toString() + " " + (remY).toString()
-        secondCoord = (Math.abs((evt.clientX + midX) / 2)).toString() + " " + (remY).toString()
-
-        thirdCoord = (evt.clientX).toString() + " " + (Math.abs((remY + midY) / 2)).toString()
-        fourthCoord = (evt.clientX).toString() + " " + (Math.abs((midY + evt.clientY - fixY) / 2)).toString()
-
-        fifthCoord = (Math.abs((evt.clientX + midX) / 2)).toString() + " " + (evt.clientY - fixY).toString()
-        sixthCoord = (Math.abs((remX + midX) / 2)).toString() + " " + (evt.clientY - fixY).toString()
-
-        seventhCoord = (remX).toString() + " " + (Math.abs((midY + evt.clientY - fixY) / 2)).toString()
-        eigthCoord = (remX).toString() + " " + (Math.abs((remY + midY) / 2)).toString()
-
-        newDimension = "M " + firstCoord + " L " + secondCoord + " L " + thirdCoord + " L " + fourthCoord + " L " + fifthCoord + " L " + sixthCoord + " L " + seventhCoord + " L " + eigthCoord + " L " + firstCoord
-
-        document.getElementById(currentShape).setAttribute("d", newDimension)
-        document.getElementById("mySVG").setAttribute("onmouseup", "finishShape()")
-    }
-    else if (chosenShape == "arrow") {
-        // Reticulating pentagon splines
-        x = document.getElementById(currentShape).getAttribute("d")
-        firstCoordX = x.split(" ")[1]
-        firstCoordY = x.split(" ")[2]
-
-        midX = (remX + evt.clientX) / 2
-        midY = (remY + evt.clientY - fixY) / 2
-
-        // Coordinates Case A 
-        firstCoord = (Math.abs(midX)).toString() + " " + (remY).toString()
-
-        secondCoord = (Math.abs(evt.clientX)).toString() + " " + (midY).toString()
-        thirdCoord = ((Math.abs((evt.clientX + midX) / 2))).toString() + " " + (midY).toString()
-
-        fourthCoord = (Math.abs((evt.clientX + midX) / 2)).toString() + " " + (evt.clientY - fixY).toString()
-        fifthCoord = (Math.abs((remX + midX) / 2)).toString() + " " + (evt.clientY - fixY).toString()
-
-        sixthCoord = (Math.abs((remX + midX) / 2)).toString() + " " + (midY).toString()
-        seventhCoord = (remX).toString() + " " + (midY).toString()
-
-        newDimension = "M " + firstCoord + " L " + secondCoord + " L " + thirdCoord + " L " + fourthCoord + " L " + fifthCoord + " L " + sixthCoord + " L " + seventhCoord + " L " + firstCoord
-
-        document.getElementById(currentShape).setAttribute("d", newDimension)
-        document.getElementById("mySVG").setAttribute("onmouseup", "finishShape()")
+    else{
+        document.getElementById("P"+c).setAttribute("stroke","black")
+        document.getElementById("P"+c).setAttribute("opacity",opac)
+        document.getElementById("P"+c).setAttribute("stroke-width",1)
     }
 }
-
-function finishShape() {
-    document.getElementById("mySVG").setAttribute("onmousemove", null)
-    document.getElementById("mySVG").setAttribute("onmouseup", null)
+function donepath(){
+    EL.setAttribute("cy",-100)
+    pathstring+="z"
+    newpath.setAttribute("d", pathstring);
+    newpath.setAttribute("fill", color());
+    doneCommon(newpath)
+    hidenewline()
+	
 }
-
-function addNgonCorner(evt) {
-    x = document.getElementById(currentShape).getAttribute("d")
-    firstCoordX = x.split(" ")[1]
-    firstCoordY = x.split(" ")[2]
-
-    if (evt.clientX > parseInt(firstCoordX) - 10 && evt.clientX < parseInt(firstCoordX) + 10 && evt.clientY - fixY > parseInt(firstCoordY) - 10 && evt.clientY - fixY < parseInt(firstCoordY) + 10) {
-        newDimension = x + " L " + firstCoordX + " " + firstCoordY
-        document.getElementById(currentShape).setAttribute("d", newDimension)
-        document.getElementById(currentShape).setAttribute("onmousedown", "startMove(evt, id)")
-        document.getElementById("mySVG").setAttribute("onmousedown", "startShape(evt)")
-        finishShape()
+function doneCommon(O){
+    STEL.setAttribute("cy",-100)
+    O.setAttribute("onmouseover","seepath("+count+",'over')")
+    O.setAttribute("onmouseout","seepath("+count+",'out')")
+    O.setAttribute("onmousedown","grab(evt,'P"+count+"')")
+    place.setAttribute("onmousemove",null)
+    Chosen=O
+    ShowPts()
+    first=true
+}
+function color(){
+    var s="#"
+    for(i=0;i<6;i++) s+=Math.floor(Math.random()*16).toString(16)
+    return s
+}
+function grab(evt, U){
+    if (!first) return
+    Chosen=document.getElementById(U);
+    GT=getTransform(Chosen)
+    oldX=evt.clientX - parseInt(GT[1]);
+    oldY=evt.clientY - parseInt(GT[2]);
+    place.setAttribute("onmousemove", "drag(evt)");
+    Chosen.setAttribute("onmouseup", "selectIt()");
+    thingclicked=true
+    Chosen.setAttribute("stroke-width", 3);
+    Chosen.setAttribute("stroke", "green");
+    ShowPts()
+}
+function getTransform(O){
+	
+    gT="translate(0,0)"
+    if (O.getAttribute("transform")) {
+        gT=O.getAttribute("transform");
+    }
+    GT=gT.split(/[,\(\)]/)
+    return GT
+}
+function selectIt(){
+    unselect()
+    Chosen.setAttribute("stroke-width", 2);
+    Chosen.setAttribute("stroke", "red");
+    place.setAttribute("onkeyup", "keyHandle(evt)");
+    place.setAttribute("onmousemove", null);
+    place.setAttribute("onmousedown", null);
+    selectM.setAttribute("visibility","visible")
+    ShowPts()
+}
+function unselect(){
+    var B=document.getElementById("Bounder");
+    B.setAttribute("visibility", "hidden");
+    Chosen.setAttribute("stroke-width", 1);
+    Chosen.setAttribute("stroke", "black");
+    place.setAttribute("onmousemove", null);
+    place.setAttribute("onmousedown", "begin(evt)");
+    selectM.setAttribute("visibility","hidden")
+    WID=document.getElementById("Widgets");
+    WID.setAttribute("visibility","hidden")
+}
+function drag(evt){
+    ShowPts()
+    place.setAttribute("onmouseup", "stopdrag()");
+    nX=evt.clientX-oldX;
+    nY=evt.clientY-oldY;
+    if (grid){
+        nX=Math.floor(nX/gridsize)*gridsize+gridsize/2
+        nY=Math.floor(nY/gridsize)*gridsize+gridsize/2
+    }
+    sT="translate("+(nX)+","+(nY)+")"
+    Chosen.setAttribute("transform", sT);
+    if (PGon) PG.setAttribute("transform", sT);
+    Chosen.setAttribute("onmouseup", null);
+}
+function stopdrag(){
+    place.setAttribute("onmousemove", null);
+    place.setAttribute("onmouseup", null);
+    Chosen.setAttribute("stroke", "black");
+    Chosen.setAttribute("stroke-width", "1");
+    finished=false
+    first=true
+    unselect()
+    //place.setAttribute("onkeyup", null);
+    selectM.setAttribute("visibility","hidden")
+}
+function keyHandle(evt){
+    if(evt.shiftKey) {
+        alert('shiftkey was down')
+    }
+    k=evt.keyCode;
+    qk=String.fromCharCode(k);
+	
+    if (evt["ctrlKey"]){alert('control key'+k);return}
+    if((k==46)||(k==8)||(k==127)||(k==68)) {Delete()}//delete or backspace or "D"
+    else if (k==16){'shiftkey was down'}//SHIFT KEY
+    else if (k==13) {if (PGon) place.removeChild(PG)
+        PGon=false;unselect()}//return key
+    else SMenu(qk)
+}
+function Delete(){
+    place.removeChild(Chosen);
+    if (PGon) place.removeChild(PG)
+    PGon=false
+    unselect()
+}
+function status(){
+    ST=document.getElementById("gridstatus");
+    GR=document.getElementById("gridrect");
+    if (grid) {
+        ST.getFirstChild().nodeValue="Off"
+        gridcolor="#ff8888"
+        GR.setAttribute("fill", gridcolor);
+        STEL.setAttribute("rx",5)
+        STEL.setAttribute("ry",5)
     }
     else {
-        x += " L " + (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
-        document.getElementById(currentShape).setAttribute("d", x)
+        ST.getFirstChild().nodeValue="On"
+        gridcolor="#88ff88"
+        GR.setAttribute("fill", gridcolor);
+        STEL.setAttribute("rx",gridsize/2)
+        STEL.setAttribute("ry",gridsize/2)
     }
+    grid=!grid
+	
 }
-
-function startMove(evt, shapeID) {
-    clearPoints()
-    shapeFollow = true
-    displacementX.length = 0
-    displacementY.length = 0
-    directionX.length = 0
-    directionY.length = 0
-    whichClass = document.getElementById(shapeID).getAttribute("class")
-
-    if (whichClass == "rect" || whichClass == "tri" || whichClass == "line" || whichClass == "ngon" || whichClass == "pent" || whichClass == "oct" || whichClass == "arrow") {
-        x = document.getElementById(shapeID).getAttribute("d")
-        loopLength = x.split("L").length
-
-        for (i = 0; i < loopLength; i++) {
-            val1 = x.split("L")[i]
-            val2 = x.split("L")[i]
-
-            val1 = parseInt(val1.split(" ")[1])
-            val2 = parseInt(val2.split(" ")[2])
-
-            displacementX[i] = Math.abs(evt.clientX - val1)
-            displacementY[i] = Math.abs(evt.clientY - fixY - val2)
-
-            if (evt.clientX < val1) {
-                directionX[i] = "+"
-            }
-            else if (evt.clientX > val1) {
-                directionX[i] = "-"
-            }
-
-            if (evt.clientY - fixY < val2) {
-                directionY[i] = "+"
-            }
-            else if (evt.clientY - fixY > val2) {
-                directionY[i] = "-"
-            }
-        }
-    }
-
-    document.getElementById(shapeID).setAttribute("onmousemove", "shapeMove(evt, id)")
-    document.getElementById(shapeID).setAttribute("onmouseup", "shapeStop(id)")
-}
-
-function shapeMove(evt, shapeID) {
-    whichClass = document.getElementById(shapeID).getAttribute("class")
-    if (whichClass == "rect" || whichClass == "tri" || whichClass == "line" || whichClass == "ngon" || whichClass == "pent" || whichClass == "oct" || whichClass == "arrow" && shapeFollow == true) {
-        // Move Shapes
-        loopLength = displacementX.length
-        newDimension = ""
-
-        for (i = 0; i < loopLength; i++) {
-            if (i == 0) {
-                newDimension = "M "
-            }
-            else {
-                newDimension += "L "
-            }
-
-            if (directionX[i] == "+") {
-                newX = (evt.clientX + displacementX[i]).toString() + " "
-            }
-            else if (directionX[i] == "-") {
-                newX = (evt.clientX - displacementX[i]).toString() + " "
-            }
-
-            if (directionY[i] == "+") {
-                newY = (evt.clientY - fixY + displacementY[i]).toString() + " "
-            }
-            else if (directionY[i] == "-") {
-                newY = (evt.clientY - fixY - displacementY[i]).toString() + " "
-            }
-            newDimension += newX + newY
-        }
-
-        document.getElementById(shapeID).setAttribute("d", newDimension)
-    }
-    else if (whichClass == "circ" || whichClass == "elli" && shapeFollow == true) {
-        // Spin that record
-        document.getElementById(shapeID).setAttribute("cx", evt.clientX)
-        document.getElementById(shapeID).setAttribute("cy", evt.clientY - fixY)
-    }
-}
-
-function shapeStop(shapeID) {
-    shapeFollow = false
-    whichClass = document.getElementById(shapeID).getAttribute("class")
-    if (whichClass == "rect" || whichClass == "tri" || whichClass == "line" || whichClass == "ngon" || whichClass == "pent" || whichClass == "oct" || whichClass == "arrow") {
-        addPoints(shapeID)
-    }
-    document.getElementById(shapeID).setAttribute("onmousemove", "")
-    document.getElementById(shapeID).setAttribute("onmouseup", "")
-}
-
-function clearPoints() {
-    if (cpCount > 0) {
-        for (i = 0; i < cpCount; i++) {
-            document.getElementById("mySVG").removeChild(document.getElementById("CP" + i))
-        }
-    }
-    cpCount = 0
-}
-
-function pointFollow() {
-    follow = true
-}
-
-function pointMove(evt, CP, shapeID) {
-    if (follow) {
-        whichClass = document.getElementById(shapeID).getAttribute("class")
-        if (whichClass == "rect" || whichClass == "tri" || whichClass == "line" || whichClass == "ngon" || whichClass == "pent" || whichClass == "oct" || whichClass == "arrow") {
-            num = CP.id.charAt(1)
-
-            // Lets move the points
-            document.getElementById("B" + num).setAttribute("fill", "white")
-            document.getElementById("B" + num).setAttribute("cx", evt.clientX)
-            document.getElementById("B" + num).setAttribute("cy", evt.clientY - fixY)
-            document.getElementById("F" + num).setAttribute("cx", evt.clientX)
-            document.getElementById("F" + num).setAttribute("cy", evt.clientY - fixY)
-
-            // Now the shape
-            x = document.getElementById(shapeID).getAttribute("d")
-            loopLength = x.split("L").length
-            lp = loopLength
-
-            if (whichClass != "line") {
-                lp -= 1
-            }
-
-            newDimension = "M "
-
-            for (i = 0; i < loopLength; i++) {
-                val1 = x.split("L")[i]
-                val2 = x.split("L")[i]
-
-                val1 = parseInt(val1.split(" ")[1])
-                val2 = parseInt(val2.split(" ")[2])
-                point = i + 1
-
-                if (num == point || num == "1" && i == lp) {
-                    val1 = evt.clientX
-                    val2 = evt.clientY - fixY
-                }
-
-                if (i > 0) {
-                    newDimension += " L "
-                }
-                newDimension += val1 + " " + val2
-            }
-
-            document.getElementById(shapeID).setAttribute("d", newDimension)
+function BuildMenus(M){
+    toolR = document.getElementById("toolRectInner");
+    toolR.setAttribute("height", 	20*ToolMenuItems.length)
+    toolRO = document.getElementById("toolRectOuter");
+    toolRO.setAttribute("height", 20*ToolMenuItems.length+4)
+    for (m in M){
+        if (M[m]==toolM) MenuItems=ToolMenuItems
+        else if (M[m]==selectM) MenuItems=SelectMenuItems
+        for (i in MenuItems){
+            var MI = document.createElementNS(xmlns,"text");
+            var MV=MenuItems[i].split(" ")
+            var MT=document.createTextNode(MV[1]+" - "+MV[0]);
+            MI.setAttribute("id","mt"+m+"_"+i)
+            MI.appendChild(MT)
+            MI.setAttribute("y",(18*i)+18)
+            MI.setAttribute("x",5)
+            if (M[m]==toolM) MI.setAttribute("onmousedown","TMenu('"+MV[2]+"')")
+            else if (M[m]==selectM) MI.setAttribute("onclick","SMenu('"+MV[2]+"')")
+            //MI.setAttribute("onmouseover","HiLight('mt"+m+"_"+i+"')")
+            MI.setAttribute("onmouseover","document.getElementById('mt"+m+"_"+i+"').setAttribute('fill','red')")
+            MI.setAttribute("onmouseout","document.getElementById('mt"+m+"_"+i+"').setAttribute('fill','black')")
+            M[m].appendChild(MI);/**/
+		
         }
     }
 }
-
-function pointStop(shapeID) {
-    follow = false
-    x = document.getElementById(shapeID).getAttribute("d")
-    whichClass = document.getElementById(shapeID).getAttribute("class")
-    loopLength = x.split("L").length
-
-    if (whichClass != "line") {
-        loopLength -= 1
-    }
-
-    for (i = 0; i < loopLength; i++) {
-        num = i + 1
-        document.getElementById("B" + num).setAttribute("fill", "none")
+function SMenu(c){
+    for (i in SelectMenuItems){
+        MV=SelectMenuItems[i].split(" ")
+        if (c==MV[2]) eval(MV[1])()
     }
 }
-
-function addPoints(shapeID) {
-    whichClass = document.getElementById(shapeID).getAttribute("class")
-    clearPoints()
-
-    if (whichClass == "rect" || whichClass == "tri" || whichClass == "line" || whichClass == "ngon" || whichClass == "pent" || whichClass == "oct" || whichClass == "arrow") {
-        // Gathering coordinates from the shape
-        y = shapeID
-
-        x = document.getElementById(shapeID).getAttribute("d")
-        loopLength = x.split("L").length
-        if (whichClass != "line") {
-            loopLength -= 1
-        }
-
-        var G = document.createElementNS(xmlns, "g")
-        G.setAttribute("id", "CP" + cpCount)
-        cpCount++
-        document.getElementById("mySVG").appendChild(G)
-
-        for (i = 0; i < loopLength; i++) {
-            val1 = x.split("L")[i]
-            val2 = x.split("L")[i]
-
-            val1 = parseInt(val1.split(" ")[1])
-            val2 = parseInt(val2.split(" ")[2])
-            num = i + 1
-
-            var C1 = document.createElementNS(xmlns, "g")
-            C1.setAttributeNS(null, "id", "C" + num)
-            C1.setAttribute("onmousedown", "pointFollow()")
-            C1.setAttribute("onmousemove", "pointMove(evt, this, y )")
-            C1.setAttribute("onmouseup", "pointStop(y)")
-
-            var B1 = document.createElementNS(xmlns, "circle")
-            B1.setAttributeNS(null, "id", "B" + num)
-            B1.setAttributeNS(null, "cx", val1)
-            B1.setAttributeNS(null, "cy", val2)
-            B1.setAttributeNS(null, "r", "150")
-            B1.setAttributeNS(null, "fill", "none")
-            B1.setAttributeNS(null, "fill-opacity", "0")
-            C1.appendChild(B1)
-
-            var F1 = document.createElementNS(xmlns, "circle")
-            F1.setAttributeNS(null, "id", "F" + num)
-            F1.setAttributeNS(null, "cx", val1)
-            F1.setAttributeNS(null, "cy", val2)
-            F1.setAttributeNS(null, "r", "5")
-            F1.setAttributeNS(null, "stroke", "black")
-            F1.setAttributeNS(null, "fill", "red")
-            C1.appendChild(F1)
-            G.appendChild(C1)
+function TMenu(c){
+    var TS=document.getElementById("toolstatus")
+	
+    for (i in ToolMenuItems){
+        MV=ToolMenuItems[i].split(" ")
+        //if (c==MV[2]) svgDocument.getElementById("toolstatus").nodeValue=MV[1]
+        if (c==MV[2]) {
+            TS.firstChild.nodeValue=MV[1]
+            toolchosen=MV[1]
         }
     }
 }
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-function drawItem() {
-
-    var svg = document.getElementById("mySVG");
-
-
-    var path = document.createElementNS(xmlns, "path");
-    path.dotAry = [];
-    path.setAttributeNS(null, "stroke", "black");
-    path.setAttributeNS(null, "stroke_width", "5");
-    path.setAttributeNS(null, "fill", "none");
-    path.data = "M";
-
-    path.setColor = function (color) {
-
+function ToolsView(){
+    toolM.setAttribute('visibility','visible')
+    toolM.setAttribute("onmousedown","toolM.setAttribute('visibility','hidden')")
+    document.getElementById('toolButton').setAttribute('fill','#88ffff')
+}
+function Copy(){
+    var Upath=Chosen.getAttribute("d")
+    count++
+    newp("path")
+    var CP=document.getElementById("P"+count);
+    CP.setAttribute("fill",Chosen.getAttribute("fill"))
+    GT=getTransform(Chosen)
+    var tX=gridsize+parseInt(GT[1]);
+    var tY=gridsize+parseInt(GT[2]);
+    CP.setAttribute("transform","translate("+tX+","+tY+")")
+    CP.setAttribute("d",Upath)
+    unselect()
+    doneCommon(CP)
+	
+}
+function Flip(){
+    var UP=FindPoints()
+    UP.pop()
+    for (i=0;i<UP.length;i++)UP[i]=parseInt(UP[i])
+    var xavg=yavg=0
+    for (i in UP){
+        if (i%2==0) xavg+=UP[i]
+        else yavg+=UP[i]
     }
-    path.drawIt = function (evt) {
-        evt = evt || window.event;
-        pauseEvent(evt);
-        path.dotAry.push(new dot(evt.clientX, evt.clientY - fixY));
-        path.display()
-    };
-    path.display = function () {
-        path.data = "M "
-        for (var i = 0; i < this.dotAry.length; i++) {
-            this.data += this.dotAry[i].x + " " + this.dotAry[i].y + " "
+    var xcenter=xavg*2/UP.length
+    var ycenter=yavg*2/UP.length
+    Chosen.setAttribute("transform","translate("+2*xcenter+",0) scale(-1,1) ")
+    unselect()
+}
+function ShowPts(){
+    if (PGon) return
+    PGon=true
+    UP=FindPoints()
+    PG=document.createElementNS(xmlns,"g");
+    place.appendChild(PG);
+    GT=getTransform(Chosen)
+    pX=parseInt(GT[1])
+    pY=parseInt(GT[2])
+    sT="translate("+(pX)+","+(pY)+")"
+    PG.setAttribute("transform", sT);
+    for (i in UP){
+        if (UP[i]=="Q") continue
+        if (UP[i]=="C") {return}
+        if (i%2==0) rememberx=UP[i]
+        else{
+            var cx=eval(rememberx)
+            var cy=eval(UP[i])
+            var pt=Math.floor(i/2)
+            var NewE=document.createElementNS(xmlns,"ellipse");
+            NewE.setAttribute("stroke-width", 1);
+            NewE.setAttribute("stroke", "black");
+            NewE.setAttribute("fill", "green");
+            NewE.setAttribute("id", "pt"+pt)
+            NewE.setAttribute("cx", cx)
+            NewE.setAttribute("cy", cy);
+            NewE.setAttribute("rx", 4);
+            NewE.setAttribute("ry", 4);
+            NewE.setAttribute("onmouseover", "pointHi('"+pt+"')");
+            NewE.setAttribute("onmouseout", "pointLo('"+pt+"')");
+            NewE.setAttribute("onmousedown", "pointGrab('"+pt+"')");
+            PG.appendChild(NewE);
         }
-        path.setAttributeNS(null, "d", path.data);
     }
-    path.onclick = function () {
-
-    }
-
-    svg.onmousedown = function (evt) {
-        svg.appendChild(path)
-        path.drawIt
-        svg.onmousemove = path.drawIt;
-        svg.onmouseup = function (evt) {
-            var svg = document.getElementById("mySVG");
-            svg.setAttribute("onmousemove", null);
-            svg.setAttribute("onmouseup", null);
-            svg.setAttribute("onmousedown", null);
-            drawItem()
-        };
-    };
+    return UP
 }
-
-function dot(x, y) {
-    this.x = x;
-    this.y = y;
+function pointHi(n){
+    TP=document.getElementById("pt"+n);
+    TP.setAttribute("fill", "yellow");
 }
-
-function distanceTwoPoints(point1, point2) // distence between two points  <-------->
-{
-    var a = Math.abs(Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2)));
-    //alert (a)
-    return a;
+function pointLo(n){
+    TP=document.getElementById("pt"+n);
+    TP.setAttribute("fill", "green");
 }
-function iPoint(p1, p2, p3, p4)//finds the intersection point given four point on two different lines <----->
-    // p1 and p2 on line one, p3 and p4 on line two. Returns 0,0 if parallel
-{
-    //alert("in funk")
-    var iP = new point(0, 0);
-    //alert("var iP")
-    var denom = ((p1.x - p2.x) * (p3.y - p4.y)) - ((p1.y - p2.y) * (p3.x - p4.x));
-
-    //alert("denom: " + denom)
-    if (denom != 0) {
-        iP.x = (((p1.x * p2.y - p1.y * p2.x) * (p3.x - p4.x)) - ((p1.x - p2.x) * (p3.x * p4.y - p3.y * p4.x))) / denom;
-        iP.y = (((p1.x * p2.y - p1.y * p2.x) * (p3.y - p4.y)) - ((p1.y - p2.y) * (p3.x * p4.y - p3.y * p4.x))) / denom;
-        return iP;
-    } else
-        return iP
-
+function STELHI(n){
+    STEL.setAttribute("fill", "yellow");
 }
-//editing functions
-
-
-//average
-function average(chosenShape) {
-    if (chosenShape == 'rect') {
-        console.log('averageRectangle')
-    }
-    else if (chosenShape == 'tri') {
-        console.log('averageTriangle')
-    }
-    else if (chosenShape == 'circ') {
-        console.log('averageCircle')
-    }
-    else if (chosenShape == 'elli') {
-        console.log('averageElli')
-    }
-    else if (chosenShape == "line") {
-        console.log('averageLine')
-    }
-    else if (chosenShape == "ngon") {
-        console.log('averageNgon')
-    }
-    else if (chosenShape == "pent") {
-        console.log('averagePent')
-    }
-    else if (chosenShape == "oct") {
-        console.log('averageOct')
-    }
-    else if (chosenShape == "arrow") {
-        console.log('averageArrow')
-    }
-
+function STELLO(n){
+    STEL.setAttribute("fill", "red");
 }
-
-//copy
-function copy(chosenShape) {
-    if (chosenShape == 'rect') {
-        console.log('copyRectangle')
-    }
-    else if (chosenShape == 'tri') {
-        console.log('copyTriangle')
-    }
-    else if (chosenShape == 'circ') {
-        console.log('copyCircle')
-    }
-    else if (chosenShape == 'elli') {
-        console.log('copyElli')
-    }
-    else if (chosenShape == "line") {
-        console.log('copyLine')
-    }
-    else if (chosenShape == "ngon") {
-        console.log('copyNgon')
-    }
-    else if (chosenShape == "pent") {
-        console.log('copyPent')
-    }
-    else if (chosenShape == "oct") {
-        console.log('copyOct')
-    }
-    else if (chosenShape == "arrow") {
-        console.log('copyArrow')
-    }
+function pointGrab(n){
+    TP=document.getElementById("pt"+n);
+    place.setAttribute("onmousemove", "pointDrag(evt,'"+n+"')");
+    place.setAttribute("onmousedown", "null");//new
+    TP.setAttribute("fill", "cyan");
 }
-
-//Delete
-function del(chosenShape) {
-    if (chosenShape == 'rect') {
-        console.log('deleteRectangle')
+function pointDrag(evt,ptn){
+    TP=document.getElementById("pt"+ptn);
+    X=evt.clientX;
+    Y=evt.clientY;
+    pathstring="M "
+    GT=getTransform(Chosen)
+    pX=parseInt(GT[1])
+    pY=parseInt(GT[2])
+    X=evt.clientX -pX;
+    Y=evt.clientY - pY;
+    if (grid){
+        X=Math.floor(X/gridsize)*gridsize+gridsize/2
+        Y=Math.floor(Y/gridsize)*gridsize+gridsize/2
     }
-    else if (chosenShape == 'tri') {
-        console.log('deleteTriangle')
+    UP=FindPoints()
+    UP[ptn*2]=X
+    UP[ptn*2+1]=Y
+    for (i in UP){
+        pathstring+=UP[i]+" "
     }
-    else if (chosenShape == 'circ') {
-        console.log('deleteCircle')
-    }
-    else if (chosenShape == 'elli') {
-        console.log('deleteElli')
-    }
-    else if (chosenShape == "line") {
-        console.log('deleteLine')
-    }
-    else if (chosenShape == "ngon") {
-        console.log('deleteNgon')
-    }
-    else if (chosenShape == "pent") {
-        console.log('deletePent')
-    }
-    else if (chosenShape == "oct") {
-        console.log('deleteOct')
-    }
-    else if (chosenShape == "arrow") {
-        console.log('deleteArrow')
-    }
+    pathstring+="z"
+    Chosen.setAttribute("d",pathstring)
+    TP.setAttribute("cx", X);
+    TP.setAttribute("cy", Y);
+    place.setAttribute("onmouseup", "stopPointDrag(evt,"+ptn+")");
+	
 }
-
-//flip
-function flip(chosenShape) {
-    if (chosenShape == 'rect') {
-        console.log('flipRectangle')
+function Transform(){
+    UP=FindPoints()
+    if (PGon) place.removeChild(PG)
+    PGon=false
+    place.setAttribute("onkeyup", "keyHandle(evt)");
+    xmax=0
+    xmin=4000
+    ymax=0
+    ymin=4000
+    edge=2
+    for (i=0;i<UP.length;i++){
+        UP[i]=parseInt(UP[i])
+	
+        if (i%2==0) {
+            if (UP[i]>xmax) xmax=UP[i]
+            if (UP[i]<xmin) xmin=UP[i]
+        }
+        else{
+            if (UP[i]>ymax) ymax=UP[i]
+            if (UP[i]<ymin) ymin=UP[i]
+        }
     }
-    else if (chosenShape == 'tri') {
-        console.log('flipTriangle')
-    }
-    else if (chosenShape == 'circ') {
-        console.log('flipCircle')
-    }
-    else if (chosenShape == 'elli') {
-        console.log('flipElli')
-    }
-    else if (chosenShape == "line") {
-        console.log('flipLine')
-    }
-    else if (chosenShape == "ngon") {
-        console.log('flipNgon')
-    }
-    else if (chosenShape == "pent") {
-        console.log('flipPent')
-    }
-    else if (chosenShape == "oct") {
-        console.log('flipOct')
-    }
-    else if (chosenShape == "arrow") {
-        console.log('flipArrow')
-    }
+    GT=getTransform(Chosen)
+    pX=parseInt(GT[1])
+    pY=parseInt(GT[2])
+    xmin=xmin+pX
+    xmax=xmax+pX
+    ymin=ymin+pY
+    ymax=ymax+pY
+    var B=document.getElementById("Bounder");
+    B.setAttribute("visibility", "visible");
+    var BIn=document.getElementById("BIn");
+    var BOut=document.getElementById("BOut");
+    BOut.setAttribute("x",xmin-edge)
+    BOut.setAttribute("width",xmax-xmin+2*edge)
+    BOut.setAttribute("y",ymin-edge)
+    BOut.setAttribute("height",ymax-ymin+2*edge)
+    BIn.setAttribute("x",xmin)
+    BIn.setAttribute("width",xmax-xmin)
+    BIn.setAttribute("y",ymin)
+    BIn.setAttribute("height",ymax-ymin)
 }
-
-//pick color
-function pColor(chosenShape) {
-    if (chosenShape == 'rect') {
-        console.log('pcRectangle')
-    }
-    else if (chosenShape == 'tri') {
-        console.log('pcTriangle')
-    }
-    else if (chosenShape == 'circ') {
-        console.log('pcCircle')
-    }
-    else if (chosenShape == 'elli') {
-        console.log('pcElli')
-    }
-    else if (chosenShape == "line") {
-        console.log('pcLine')
-    }
-    else if (chosenShape == "ngon") {
-        console.log('pcNgon')
-    }
-    else if (chosenShape == "pent") {
-        console.log('pcPent')
-    }
-    else if (chosenShape == "oct") {
-        console.log('pcOct')
-    }
-    else if (chosenShape == "arrow") {
-        console.log('pcArrow')
-    }
+function Edge(){
+    var BIn=document.getElementById("BIn");
+    var BOut=document.getElementById("BOut");
+    BOut.setAttribute("stroke","red")
 }
-
-//Re Color
-function rColor(chosenShape) {
-    //grabs current shape
-    cs = document.getElementById(currentShape)
-
-    //sets random RGB values
-    red = Math.floor(Math.random() * 255);
-    green = Math.floor(Math.random() * 255);
-    blue = Math.floor(Math.random() * 255);
-
-    if (chosenShape == 'rect') {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
+function unEdge(){
+    var BIn=document.getElementById("BIn");
+    var BOut=document.getElementById("BOut");
+    BOut.setAttribute("stroke","black")
+}
+function edgeGrab(evt){
+	
+    oldX=X=evt.clientX;
+    oldY=Y=evt.clientY;
+    le=false
+    to=false
+    ri=false
+    bo=false
+    if (X<xmin+edge) le=true
+    if (Y<ymin+edge) to=true
+    if (X>xmax-edge) ri=true
+    if (Y>ymax-edge) bo=true
+    GT=getTransform(Chosen)
+    pX=parseInt(GT[1])
+    pY=parseInt(GT[2])
+    place.setAttribute("onmousemove","edgeDrag(evt,"+le+","+to+","+ri+","+bo+","+pX+","+pY+")")
+    var BIn=document.getElementById("BIn");
+    BIn.setAttribute("onmousemove","edgeDrag(evt,"+le+","+to+","+ri+","+bo+","+pX+","+pY+")")
+    place.setAttribute("onmouseup", "stopEdgeDrag();")
+    BIn.setAttribute("onmouseup", "stopEdgeDrag();")
+}
+function edgeDrag(evt,l,t,r,b,px,py){
+    document.getElementById("BOut").setAttribute("stroke","blue")
+    X=evt.clientX -pX;
+    Y=evt.clientY -pY;
+    var xs=ys=1
+    var xo=yo=0
+    var stranslate=xo+","+yo
+    var sscale=xs+","+ys
+	
+    if (l) {xs=(xmax-X)/(xmax - xmin);xo=(X-xs*xmin)}//left
+    if (t) {ys=(ymax-Y)/(ymax - ymin);yo=(Y-ys*ymin)} //top
+    if (r) {xs=(X-xmin)/(xmax - xmin);xo=(X-xs*xmax)} //right
+    if (b) {ys=(Y-ymin)/(ymax - ymin);yo=(Y-ys*ymax)}  //bottom
+    stranslate=Math.ceil(xo)+","+Math.ceil(yo); 
+    sscale=xs+","+ys 
+	
+    Chosen.setAttribute("transform","translate("+stranslate+") scale("+sscale+") ")
+}
+function stopEdgeDrag(evt){
+    place.setAttribute("onmousemove", null);
+    place.setAttribute("onmouseup", null);
+    var BIn=document.getElementById("BIn");
+    BIn.setAttribute("onmousemove",null)
+    var B=document.getElementById("Bounder");
+    B.setAttribute("visibility", "hidden");
+    ApplyTransforms(Chosen)
+    unselect()
+}
+function hide(O){
+    O.setAttribute('visibility','hidden')
+}
+function stopPointDrag(evt,ptn){
+    TP=document.getElementById("pt"+ptn);
+    TP.setAttribute("fill", "green");
+    pathstring="M "
+    place.setAttribute("onmousedown", "begin(evt)")
+    place.setAttribute("onmousemove", null);
+    place.setAttribute("onmouseup", null);
+}
+function ApplyTransforms(O){
+    Chosen=O
+    TF=O.getAttribute("transform").split(" ")
+    for (i in TF) eval(TF[i])
+}
+function translate(){
+    //alert("translate"+arguments[0]+","+arguments[1])
+    pathstring="M "
+    for (i in R=FindPoints()) {
+        if (i%2==0) R[i]=eval(R[i])+eval(arguments[0])
+        else R[i]=eval(R[i])+eval(arguments[1])
+        pathstring+=R[i]+" "
     }
-    else if (chosenShape == 'tri') {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
+    pathstring+="z"
+    Chosen.setAttribute("d",pathstring)
+	
+}
+function scale(){
+    pathstring="M "
+    for (i in R=FindPoints()) {
+        if (i%2==0) R[i]=eval(R[i])*eval(arguments[0])
+        else R[i]=eval(R[i])*eval(arguments[1])
+        pathstring+=R[i]+" "
     }
-    else if (chosenShape == 'circ') {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == 'elli') {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == "line") {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == "ngon") {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == "pent") {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == "oct") {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == "arrow") {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
+    pathstring+="z"
+    Chosen.setAttribute("d",pathstring)
+    Chosen.setAttribute("transform","")
+}
+function rotate(){
+    alert("rotate")
+    alert(arguments[0])
+	
+}
+function FindPoints(){
+    var Upath=Chosen.getAttribute("d")
+    var UP=Upath.split(" ")
+    UP.shift()
+    UP.pop()
+    for (i in UP) if (UP[i]=="Q") UP.splice(i,1)
+    return UP
+}
+function Recolor(){
+    Chosen.setAttribute("fill",color())
+}
+function PickColor(){
+    ViewWidgets()
+}
+function MakeGrad(central){
+    globalcentral=central
+    rg = document.getElementById("rhue")
+    nbands=4
+    band=new Array(nbands)
+    colors[1]=colors[2]=central
+    for (i=0;i<nbands;i++){
+        band[i]=document.getElementById("ro"+i)
+        band[i].setAttribute("style","stop-color: "+colors[i])
     }
 }
-
-//Smooth
-function smooth(chosenShape) {
-    if (chosenShape == 'rect') {
-        console.log('smoothRectangle')
-    }
-    else if (chosenShape == 'tri') {
-        console.log('smoothTriangle')
-    }
-    else if (chosenShape == 'circ') {
-        console.log('smoothCircle')
-    }
-    else if (chosenShape == 'elli') {
-        console.log('smoothElli')
-    }
-    else if (chosenShape == "line") {
-        console.log('smoothLine')
-    }
-    else if (chosenShape == "ngon") {
-        console.log('smoothNgon')
-    }
-    else if (chosenShape == "pent") {
-        console.log('smoothPent')
-    }
-    else if (chosenShape == "oct") {
-        console.log('smoothOct')
-    }
-    else if (chosenShape == "arrow") {
-        console.log('smoothArrow')
-    }
+function HSBPrep(s){
+    document.getElementById(s).setAttribute("onmousemove",s+"(evt)")
 }
-
-//Unselect
-function unselect(chosenShape) {
-    if (chosenShape == 'rect') {
-        console.log('unRectangle')
-    }
-    else if (chosenShape == 'tri') {
-        console.log('unTriangle')
-    }
-    else if (chosenShape == 'circ') {
-        console.log('unCircle')
-    }
-    else if (chosenShape == 'elli') {
-        console.log('unElli')
-    }
-    else if (chosenShape == "line") {
-        console.log('unLine')
-    }
-    else if (chosenShape == "ngon") {
-        console.log('unNgon')
-    }
-    else if (chosenShape == "pent") {
-        console.log('unPent')
-    }
-    else if (chosenShape == "oct") {
-        console.log('unOct')
-    }
-    else if (chosenShape == "arrow") {
-        console.log('unArrow')
-    }
+function Hue(evt){
+    X=(evt.clientX - 250)/50;
+    CommonColor()
+    if (middle) colstring=globalcentral
+    else{
+        for (i=1;i<4;i++){
+            a=parseInt(RGBc[i],16)
+            b=parseInt(RGB1[i],16)
+            avg=Math.ceil((w1*a+w2*b)*16)
+            colstring+=avg.toString(16)
+        }}
+    Chosen.setAttribute("fill",colstring)
 }
-
-//view src
-function viewsrc(chosenShape) {
-    if (chosenShape == 'rect') {
-        console.log('vsRectangle')
+function CommonColor(){
+    RGBc=colors[1].split(/.{0}/)
+    middle=false
+    var w1=w2=.5
+    if (X<offsets[1]){
+        RGB1=colors[0].split(/.{0}/)
+        w1=X/offsets[1]
+        w2=1-w1
     }
-    else if (chosenShape == 'tri') {
-        console.log('vsTriangle')
+    else if (X>offsets[2]){
+        RGB1=colors[3].split(/.{0}/)
+        w2=(X-offsets[2])/(1-offsets[2])
+        w1=1-w2
     }
-    else if (chosenShape == 'circ') {
-        console.log('vsCircle')
-    }
-    else if (chosenShape == 'elli') {
-        console.log('vsElli')
-    }
-    else if (chosenShape == "line") {
-        console.log('vsLine')
-    }
-    else if (chosenShape == "ngon") {
-        console.log('vsNgon')
-    }
-    else if (chosenShape == "pent") {
-        console.log('vsPent')
-    }
-    else if (chosenShape == "oct") {
-        console.log('vsOct')
-    }
-    else if (chosenShape == "arrow") {
-        console.log('vsArrow')
-    }
+    else middle=true
+    colstring="#"
 }
+function Tra(evt){
+    X=(evt.clientX - 460)/50;
+    CommonColor()
+    if (middle) opa=.5
+    else{ opa=X
+    }
+    Chosen.setAttribute("opacity",opa)
+}
+function ViewWidgets(){
+    chosencolor=Chosen.getAttribute("fill")
+    WID=document.getElementById("Widgets");
+    WID.setAttribute("visibility","visible")
+    WidT=new Array(4)
+    for (i in widgnames) {
+        WidT[i]=document.getElementById(widgnames[i]);
+        if (i==0) WidT[i].setAttribute("fill","url(#rhue)");
+        else WidT[i].setAttribute("fill",chosencolor);
+    }
+	
+    MakeGrad(chosencolor)
+}
+function HideWidgets(){
+    WID=document.getElementById("Widgets");
+    WID.setAttribute("visibility","hidden")
+}
+function Average(closepath){
+    UP=FindPoints()
+    pathstring="M "
+    for (i=0;i<UP.length;i++){
+        UP[i]=parseInt(UP[i])
+        if (i%4==0) rx=UP[i]
+        if (i%4==1) ry=UP[i]
+        if (i%4==2) pathstring+=(eval(UP[i])+eval(rx))/2+" "
+        if (i%4==3) pathstring+=(eval(UP[i])+eval(ry))/2+" "
+    }
+    if (closepath) pathstring+="z"
+    Chosen.setAttribute("d",pathstring)
+    pathstring="M "
+    unselect()
+}
+function Smooth(){
+    UP=FindPoints()
+    for (i=0;i<UP.length;i++)UP[i]=parseInt(UP[i])
+    var x1=UP[0]
+    var y1=UP[1]
+    var x2=UP[2]
+    var y2=UP[3]
+    var x3=xn=UP[UP.length-2]
+    var y3=yn=UP[UP.length-1]
+    smx=midx1=(x1+x2)/2
+    smy=midy1=(y1+y2)/2
+    nmx=(x1+xn)/2
+    nmy=(y1+yn)/2
+    pathstring="M "+nmx+" "+nmy+" Q "+x1+" "+y1+" "+midx1+" "+midy1
+    for (i=4;i<UP.length-1;i+=2){
+        x3=UP[i]
+        y3=UP[i+1]
+        midx1=(x2+x1)/2
+        midy1=(y2+y1)/2
+        midx2=(x2+x3)/2
+        midy2=(y2+y3)/2
+        pathstring+=" Q "+x2+" "+y2+" "+midx2+" "+midy2
+        x1=x2
+        y1=y2
+        x2=x3
+        y2=y3
+    }
+    pathstring+=" Q "+xn+" "+yn+" "+nmx+" "+nmy
+    pathstring+=" z"
+    Chosen.setAttribute("d",pathstring)
+    pathstring="M "
+    unselect()
+}
+function Fix(){
+    var id=Chosen.getAttribute("id")
+    unselect()
+    Chosen.setAttribute("stroke","none")
+    Chosen.setAttribute("onmouseup", "rearm('"+id+"')");
+    Chosen.setAttribute("onmouseover", null);
+    Chosen.setAttribute("onmouseout", null);
+    Chosen.setAttribute("onmousedown", null);
+}
+function rearm(id){
+    Q=document.getElementById(id);
+    Q.setAttribute("stroke","black")
+    Q.setAttribute("onmousedown","unFix("+Q+")")
+}
+function unFix(id){
+    Q=document.getElementById(id);
+    Q.setAttribute("stroke","black")
+    Q.setAttribute("onmousedown","grab(evt,"+Q+")")
+    Q.setAttribute("onmouseover", null);
+    Q.setAttribute("onmouseout", null);
+}
+function ViewSrc(){
+    //if this SVG page has been embedded in an HTML document, then the scripts of
+    //that document will have rewritten the "x" attribute of the object named "R" as
+    //a signal that its (more complete) I/O apparatus may be accessed.
+    //for running the SVG document in stand-alone mode, the simpler self-contained 
+    //function, "ViewSrcLivesInSVG()",  is invoked
+    HTML=document.getElementById("R");
+    HTMLpresent=HTML.getAttribute("x")
+    if(HTMLpresent==0)	top.ViewSource(Chosen)
+    else ViewSrcLivesInSVG()
+}
+function ViewSrcLivesInSVG(){
+    if(Chosen.nodeName!="path") return
+    s="<path "
+    var attr=Chosen.attributes
+    for (i=0; i<attr.length; i++){ 
+        s+=attr.item(i).name + " = \"" + attr.item(i).value + "\" "
+    }
+    s+="/\>"
+    alert(s)
+    return s
+	
+}
+//function Bezier(){alert('bezier')}
+armed=true;
+finished=false
+first=true
+function Bezier(){
+    place.setAttribute("onmouseup","doneplace(evt)" )
+    place.setAttribute("onmousedown","army(evt)" )
+    place.setAttribute("onmousemove","Bdraw(evt)")
+    STEL.setAttribute("onmousemove","Bdraw(evt)")
+    a0X=startX=X
+    a0Y=startY=Y
+    A[0]=a0X+" "+a0Y
+    count++
+    sp="M "+X+" "+Y
+    newcurve.setAttribute("d", sp)
+    newpath = document.createElementNS(xmlns,"path");
+    CommonProps(newpath)
+    newpath.setAttribute("fill", "none");
+    oldstX=X
+    oldstY=Y
+    oldX=X
+    oldY=Y
+    STEL.setAttribute("cx", X); 
+    STEL.setAttribute("cy", Y); 
+    STEL.setAttribute("onmousedown", "finish(evt)")
+    first=false
+}
+function doneplace(){
+    if(finished) return
+    s="M "+A[0]
+    sq=" C "+" "+oldstX+" "+oldstY+" "+stX+" "+stY+" "+startX+" "+startY
+    if (A.length==1) sq=" Q "+" "+oldstX+" "+oldstY+" "+startX+" "+startY
+    A.push(sq)
+    for (i=1;i<A.length;i++){
+        s+=A[i]
+    }
+    newpath.setAttribute("d", s);
+    oldX=startX
+    oldY=startY
+    oldstX=X
+    oldstY=Y
+    armed=false
+}
+function Bdraw(evt){
+    if (!armed) {
+        return
+    }
+    X=evt.clientX;
+    Y=evt.clientY;
+    stX=2*startX-X
+    stY=2*startY-Y
+    asX=2*a0X-X
+    asY=2*a0Y-Y
+    newline.setAttribute("x1", stX); 
+    newline.setAttribute("y1", stY); 
+    newline.setAttribute("x2", X); 
+    newline.setAttribute("y2", Y); 
+    sp="M "+oldX+" "+oldY+" C "+" "+oldstX+" "+oldstY+" "+stX+" "+stY+" "+startX+" "+startY+" Q "+X+" "+Y+" "+A[0]
+    newcurve.setAttribute("d",sp)
+	
+}
+function Bstopdrag(U){
+    L=document.getElementById(U);
+    place.setAttribute("onmousemove", "Bdraw(evt)");
+    place.setAttribute("onmouseup", "doneplace(evt)");
+    L.setAttribute("fill",color())
+    L.setAttribute("stroke", "black");
+    L.setAttribute("stroke-width", "1");
+    finished=false
+    first=true
+    sp=""
+    A=new Array()
+}
+function army(evt){
+    if (finished) return
+    startX=evt.clientX;
+    startY=evt.clientY;
+    if (first) begin(evt) 
+    else{
+        EL.setAttribute("cx", startX); 
+        EL.setAttribute("cy", startY); 
+    }
+    armed=true;
+}
+function finish(evt){
+    finished=true
+    place.setAttribute("onmousemove", "lastcurve(evt)");
+    place.setAttribute("onmouseup", "lastfinish()");
+}
+function lastcurve(evt){
+    X=evt.clientX;
+    Y=evt.clientY;
+    staX=2*a0X-X
+    staY=2*a0Y-Y
+    EL.setAttribute("cx", staX); 
+    EL.setAttribute("cy", staY); 
+    A1=A[1].split(" ")
+    newline.setAttribute("x1", staX); 
+    newline.setAttribute("y1", staY); 
+    newline.setAttribute("x2", X); 
+    newline.setAttribute("y2", Y); 
+    var spT="M "+oldX+" "+oldY+" C "+oldstX+" "+oldstY+" "+staX+" "+staY+" "+a0X+" "+a0Y
+    sp="C "+oldstX+" "+oldstY+" "+staX+" "+staY+" "+a0X+" "+a0Y
+    newcurve.setAttribute("d",spT)
+}
+function lastfinish(){
+    s="M "+A[0]
+    for (i=1;i!=A.length;i++) s+=A[i]
+    s+=sp
+    newpath.setAttribute("d", s);
+    STEL.setAttribute("onmousedown","donepath()")
+    EL.setAttribute("cy", -100); 
+    newline.setAttribute("x1", -100); 
+    newline.setAttribute("y1", -100); 
+    newline.setAttribute("x2", -100); 
+    newline.setAttribute("y2", -100); 
+    newcurve.setAttribute("d","M -1 -1 -1 -1")
+    Bstopdrag("P"+count)
+    place.setAttribute("onmouseup", "doneplace(evt)");
+    doneCommon(newpath)
+}
+function doneCommon(O){
+    STEL.setAttribute("cy",-100)
+    O.setAttribute("onmouseover","seepath("+count+",'over')")
+    O.setAttribute("onmouseout","seepath("+count+",'out')")
+    O.setAttribute("onmousedown","grab(evt,'P"+count+"')")
+    place.setAttribute("onmousemove",null)
+    Chosen=O
+    ShowPts()
+    first=true
+}
+function exportFull(){
+    var tempString=""
+    var newOut=""
+    SVGRoot=svgDocument.documentElement.getElementById("place")
+    stringEx="<svg width='100%' height='100%' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'>"
+    for (i=0;i<SVGRoot.childNodes.length;i++){
+        if ((SVGRoot.childNodes.item(i).id)&&
+            (SVGRoot.childNodes.item(i).id!="bigR")&&
+            (SVGRoot.childNodes.item(i).id!="EL")&&
+            (SVGRoot.childNodes.item(i).id!="L")&&
+            (SVGRoot.childNodes.item(i).id!="C")){
+            var attr=SVGRoot.childNodes.item(i).attributes
+            stringEx+="<"+SVGRoot.childNodes.item(i).nodeName+" "
+            for (j=0; j<attr.length; j++){ 
+                if (attr.item(j).name.substring(0,2)!="on")
+                    stringEx+=attr.item(j).name + " = \"" + attr.item(j).value + "\" "
+            }
+            stringEx+=" /\>"
+        }
+    }
+    stringEx+="</svg>"
+    top.doit(stringEx);
+		
+}
+var SelectMenuItems=new Array("a Average A","c Copy C", "d Delete D", "f Flip F", "p PickColor P","r Recolor R", "s Smooth S", "t Transform T","u unselect U","v ViewSrc V","x Fix X")
+var ToolMenuItems=new Array("r Rectangle R", "b Bezier B", "e Ellipse E", "f Freehand F", "n Ngon N", "p Polyline P", "s Star S","x Xolygon X")
+//note: menu items are of the form    v Command k
+//Command is the function to be run
+//v is the description of the keyboard shortcut given to the user
+//k is the keycode associated with the keystroke
+//]]>
+</script>
+<defs id="DEF">
+<linearGradient id="rhue" x1="0" x2="50" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+<stop offset="0" id="ro0" style="stop-color: red"/>
+<stop offset=".45" id="ro1" style="stop-color: blue"/>
+<stop offset=".55" id="ro2" style="stop-color: red"/>
+<stop offset="1" id="ro3" style="stop-color: blue"/>
+</linearGradient>
+</defs>
+<g id="place" onmousedown="begin(evt);">
+<rect id="bigR" x="0" y="0" width="100%" height="100%" fill="#ffe" />
+<ellipse id="EL" cx="400" cy="-100" rx="3" ry="3" stroke="black" stroke-width="1" fill="green"></ellipse>
+</g>
+<ellipse id="STEL" cx="400" cy="-100" rx="5" ry="5" stroke="black" onmouseover="STELHI()" onmouseout="STELLO()" onmousedown="donepath()" stroke-width="1" fill="red"></ellipse>
+<g id="menubar">
+<rect x="0" y="0" width="100%" height="22" fill="#ddd" stroke="black" stroke-width="1" />
+<text x="350" y="15">Click below to draw</text>
+<g id="gridgroup">
+<rect 
+id="gridrect" x="35" y="0" width="40" height="20" fill="#FF8888" 
+stroke="black" stroke-width="2" onclick="status()" 
+onmouseover="document.getElementById('gridrect').setAttribute('fill','#ffff88')"
+onmouseout="document.getElementById('gridrect').setAttribute('fill',gridcolor)"
+/>
+<text x="8" y="15">Grid</text>
+<text id="gridstatus" x="45" y="15" onclick="status()"
+onmouseover="document.getElementById('gridrect').setAttribute('fill','#ffff88')"
+onmouseout="document.getElementById('gridrect').setAttribute('fill',gridcolor)"
+>
+Off</text>
+</g>
+<g id="selectM" visibility="hidden">
+<rect x="0" y="0" width="90" height="250" fill="#eee" stroke="black" stroke-width="2"/>
+</g>
+<g id="toolgroup" transform="translate(85,0)">
+<rect id="toolButton" x="40" y="0" width="65" height="20" onmousedown="ToolsView()"
+onmouseover="document.getElementById('toolButton').setAttribute('fill','#ffff88')"
+onmouseout="document.getElementById('toolButton').setAttribute('fill','#88ffff')"
+fill="#88ffff" stroke="black" stroke-width="2"/>
+<text x="8" y="15">Tool</text>
+<text id="toolstatus" x="45" y="15" 
+onmouseover="document.getElementById('toolButton').setAttribute('fill','#ffff88')"
+onmouseout="document.getElementById('toolButton').setAttribute('fill','#88ffff')"
+onmousedown="ToolsView()">Rectangle</text>
+<g id="toolM" visibility="hidden">
+<rect id="toolRectOuter" x="0" y="0" width="94" height="144" stroke="black" stroke-width="1"
+fill="#ddd" onmouseout="hide(toolM)"/>
+<rect id="toolRectInner" x="4" y="0" width="86" height="140" 
+fill="#eee"/>
+</g>
+</g>
+</g>
+<g id="Bounder" visibility="hidden">
+<rect id="BOut" x="4" y="0" width="86" height="140" 
+fill="none" opacity=".4" stroke="black" stroke-width="5" 
+onmouseover="Edge()" onmouseout="unEdge()" onmousedown="edgeGrab(evt)"/>
+<rect id="BIn" x="0" y="0" width="94" height="144" stroke="black" stroke-width="1"
+fill="#ddf" opacity=".1"/>
+</g>
+<g id="Widgets" visibility="hidden">
+<g id="ColGrads" transform="translate(250,2)">
+	<text x="-10" y="15">H</text>
+	<rect id="Hue" x="0" y="0" width="50" height="18" fill="#f00" onmouseover="HSBPrep('Hue')"/>
+	<text x="60" y="15">S</text>
+	<rect id="Sat" x="70" y="0" width="50" height="18" fill="#f00" onmouseover="HSBPrep('Sat')"/>
+	<text x="130" y="15">B</text>
+	<rect id="Bri" x="140" y="0" width="50" height="18" fill="#f00" onmouseover="HSBPrep('Bri')"/>
+	<text x="200" y="15">T</text>
+	<rect id="Tra" x="210" y="0" width="50" height="18" fill="#f00" onmouseover="HSBPrep('Tra')"/>
+	<g id="closebutton" transform="translate(270,6)">
+		<rect x="0" y="0" width="15" height="10" stroke="#888800" stroke-width="2"
+fill="#fdd" onclick="HideWidgets()"/>
+<line x1="0" y1="0" x2="15" y2="10" stroke="#888800" stroke-width="2" onclick="HideWidgets()"/>
+<line x1="15" y1="0" x2="0" y2="10" stroke="#888800" stroke-width="2" onclick="HideWidgets()"/>
+</g>
+</g>
+</g>
+<g onclick="top.about()">
+<ellipse cx="700" cy="11" rx="10" ry="10" stroke="black" stroke-width="2" fill="yellow"/>
+<text x="700" y="17" font-size="16" pointer-events="none" text-anchor="middle">?</text>
+</g>
+<g transform="translate(620,0)">
+	<rect id="expButton" x="0" y="0" rx="5" width="60" height="20" onclick="exportFull()"
+onmouseover="svgDocument.getElementById('expButton').setAttribute('fill','#ffff88')"
+onmouseout="svgDocument.getElementById('expButton').setAttribute('fill','pink')"
+fill="pink" stroke="black" stroke-width="2"/>
+<text x="30" y="15" pointer-events="none" text-anchor="middle">Export</text>
+</g>
+<rect id="R" x="100" y="-100" width="4" height="4" fill="#f00" />
+</svg>

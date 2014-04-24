@@ -13,7 +13,7 @@ function gridOne() {
     var myDiv = document.getElementById('mySVG');
     hgt = myDiv.clientHeight
     finhgt = hgt / 10
-    Content = ["", "100", "200", "300", "400", "500", "600", "700", "800", "900", "1000", "1100", "1200", "1300", "1400", "1500", "1600"]
+
 
     //running into crossbroswer issue, in regards to a grid, and sizing issues.
 
@@ -47,7 +47,7 @@ function gridOne() {
         yT.setAttribute("fill", "black")
         yT.setAttribute("x", 0)
         yT.setAttribute("y", 15 + i * 100)
-        yT.textContent = Content[i]
+        yT.textContent = (i * 100) == 0 ? "" : i * 100;
         document.getElementById("mySVG").appendChild(yT)
 
         var xT = document.createElementNS(svgNS, "text")
@@ -56,7 +56,7 @@ function gridOne() {
         xT.setAttribute("fill", "black")
         xT.setAttribute("x", 2.5 + i * 100)
         xT.setAttribute("y", 13)
-        xT.textContent = Content[i]
+        xT.textContent =  i * 100
         document.getElementById("mySVG").appendChild(xT)
 
     }
@@ -485,34 +485,28 @@ function drawShape(evt) {
     }
     else if (chosenShape == "circ") {
         // Rounding the circle!
-        newCX = (remX + evt.clientX) / 2
-        newCY = (remY + evt.clientY - fixY) / 2
 
-        oneSide = (remY - evt.clientY - fixY) ^ 2
-        twoSide = (remX - evt.clientX) ^ 2
+        var shape = document.getElementById(currentShape)
+        var point1 = new dot(parseInt(shape.getAttributeNS(null, "cx")), parseInt(shape.getAttributeNS(null, "cy")));
+        var point2 = new dot(evt.clientX, evt.clientY - fixY)
+        var newR = distanceTwoPoints(point1,point2)
 
-        newR = Math.sqrt(Math.abs(oneSide)) + Math.sqrt(Math.abs(twoSide))
-
-        document.getElementById(currentShape).setAttribute("cx", newCX)
-        document.getElementById(currentShape).setAttribute("cy", newCY)
-        document.getElementById(currentShape).setAttribute("r", newR * 2)
+        document.getElementById(currentShape).setAttribute("r", newR)
 
         document.getElementById("mySVG").setAttribute("onmouseup", "finishShape()")
     }
     else if (chosenShape == "elli") {
-        // Extending the Ellipse: Electric Boogaloo 2
-        newCX = (remX + evt.clientX) / 2
-        newCY = (remY + evt.clientY - fixY) / 2
+        // Extending the Ellipse: Electric Boogaloo 2 
 
-        oneSide = (remY - evt.clientY - fixY) ^ 2
-        twoSide = (remX - evt.clientX) ^ 2
+        var shape = document.getElementById(currentShape)
 
-        newR = Math.sqrt(Math.abs(oneSide)) + Math.sqrt(Math.abs(twoSide))
+        var point1 = new dot(parseInt(shape.getAttributeNS(null, "cx")), parseInt(shape.getAttributeNS(null, "cy")));
+        var point2 = new dot(evt.clientX, evt.clientY - fixY)
 
-        document.getElementById(currentShape).setAttribute("cx", newCX)
-        document.getElementById(currentShape).setAttribute("cy", newCY)
-        document.getElementById(currentShape).setAttribute("rx", newR * 2.5)
-        document.getElementById(currentShape).setAttribute("ry", newR * 1.5)
+        newR = distanceTwoPoints(point1, point2)
+
+        document.getElementById(currentShape).setAttribute("rx", newR *2)
+        document.getElementById(currentShape).setAttribute("ry", newR )
 
         document.getElementById("mySVG").setAttribute("onmouseup", "finishShape()")
     }
@@ -924,6 +918,78 @@ function drawItem() {
         };
     };
 }
+
+function drawStar() {
+    //adobted 
+    var svg = document.getElementById("mySVG");
+
+
+    var path = document.createElementNS(xmlns, "path");
+    var permute = randInt(30, 5)
+    path.dotAry = [];
+    path.setAttributeNS(null, "stroke", "black");
+    path.setAttributeNS(null, "stroke_width", "5");
+    path.setAttributeNS(null, "fill", "none");
+    path.data = "M";
+        
+
+
+        starstring = "M "
+         n = Math.floor(Math.random() * 8) + 3
+        radius = 100
+        Ang = 2 * Math.PI / n
+        Ax = new Array(n)
+        Ay = new Array(n)
+        for (i = 0; i < n; i++) {
+
+            Ax[i] = X + Math.ceil(radius * Math.cos(i * Ang))
+            Ay[i] = Y + Math.ceil(radius * Math.sin(i * Ang))
+        }
+        for (i = 0; i < n; i++) {
+            starstring += Ax[(i * permute) % n] + " " + Ay[(i * permute) % n] + " "
+        }
+        starstring += "z"
+        newstar.setAttributeNS(null,"fill", color());
+        newstar.setAttributeNS(null,"d", starstring);
+        newstar.setAttributeNS(null, "stroke", "black");
+        newstar.setAttributeNS(null, "stroke_width", "5");
+
+
+    path.setColor = function (color) {
+
+    }
+    path.drawIt = function (evt) {
+        evt = evt || window.event;
+        pauseEvent(evt);
+        path.dotAry.push(new dot(evt.clientX, evt.clientY - fixY));
+        path.display()
+    };
+    path.display = function () {
+        path.data = "M "
+        for (var i = 0; i < this.dotAry.length; i++) {
+            this.data += this.dotAry[i].x + " " + this.dotAry[i].y + " "
+        }
+        path.setAttributeNS(null, "d", path.data);
+    }
+    path.onclick = function () {
+
+    }
+
+    svg.onmousedown = function (evt) {
+        svg.appendChild(path)
+        path.drawIt
+        svg.onmousemove = path.drawIt;
+        svg.onmouseup = function (evt) {
+            var svg = document.getElementById("mySVG");
+            svg.setAttribute("onmousemove", null);
+            svg.setAttribute("onmouseup", null);
+            svg.setAttribute("onmousedown", null);
+            drawItem()
+        };
+    };
+}
+
+function randInt(high, low) { return Math.floor(Math.random() * (high - low + 1)) + low; }
 
 function dot(x, y) {
     this.x = x;
