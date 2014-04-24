@@ -881,7 +881,7 @@ function drawItem() {
     var path = document.createElementNS(xmlns, "path");
     path.dotAry = [];
     path.setAttributeNS(null, "stroke", "black");
-    path.setAttributeNS(null, "stroke_width", "5");
+    path.setAttributeNS(null, "stroke-width", "5");
     path.setAttributeNS(null, "fill", "none");
     path.data = "M";
 
@@ -902,7 +902,13 @@ function drawItem() {
         path.setAttributeNS(null, "d", path.data);
     }
     path.onclick = function () {
+        svg.setAttribute("onmousedown", function (evt) {
+            evt = evt || window.event;
+            pauseEvent(evt);
 
+
+
+        });
     }
 
     svg.onmousedown = function (evt) {
@@ -920,57 +926,41 @@ function drawItem() {
 }
 
 function drawStar() {
-    //adobted 
+    //adobted from Dr.D's code.
     var svg = document.getElementById("mySVG");
+    svg.setAttribute("onmousedown", null);
 
 
     var path = document.createElementNS(xmlns, "path");
     var permute = randInt(30, 5)
     path.dotAry = [];
     path.setAttributeNS(null, "stroke", "black");
-    path.setAttributeNS(null, "stroke_width", "5");
+    path.setAttributeNS(null, "stroke-width", "5");
     path.setAttributeNS(null, "fill", "none");
     path.data = "M";
-        
+    path.setAttributeNS(null, "fill", randColor());
+    path.setAttributeNS(null, "stroke-width", "5");
 
+    var starstring = "M "
+    n = Math.floor(Math.random() * 8) + 3
+    radius = 100
+    Ang = 2 * Math.PI / n
+    Ax = new Array(n)
+    Ay = new Array(n)
+    for (i = 0; i < n; i++) {
 
-        starstring = "M "
-         n = Math.floor(Math.random() * 8) + 3
-        radius = 100
-        Ang = 2 * Math.PI / n
-        Ax = new Array(n)
-        Ay = new Array(n)
-        for (i = 0; i < n; i++) {
-
-            Ax[i] = X + Math.ceil(radius * Math.cos(i * Ang))
-            Ay[i] = Y + Math.ceil(radius * Math.sin(i * Ang))
-        }
-        for (i = 0; i < n; i++) {
-            starstring += Ax[(i * permute) % n] + " " + Ay[(i * permute) % n] + " "
-        }
-        starstring += "z"
-        newstar.setAttributeNS(null,"fill", color());
-        newstar.setAttributeNS(null,"d", starstring);
-        newstar.setAttributeNS(null, "stroke", "black");
-        newstar.setAttributeNS(null, "stroke_width", "5");
-
-
-    path.setColor = function (color) {
-
+        Ax[i] = X + Math.ceil(radius * Math.cos(i * Ang))
+        Ay[i] = Y + Math.ceil(radius * Math.sin(i * Ang))
     }
-    path.drawIt = function (evt) {
-        evt = evt || window.event;
-        pauseEvent(evt);
-        path.dotAry.push(new dot(evt.clientX, evt.clientY - fixY));
-        path.display()
-    };
-    path.display = function () {
-        path.data = "M "
-        for (var i = 0; i < this.dotAry.length; i++) {
-            this.data += this.dotAry[i].x + " " + this.dotAry[i].y + " "
-        }
-        path.setAttributeNS(null, "d", path.data);
+    for (i = 0; i < n; i++) {
+        starstring += Ax[(i * permute) % n] + " " + Ay[(i * permute) % n] + " "
     }
+    starstring += "z"
+
+    path.setAttributeNS(null, "d", starstring);
+
+
+
     path.onclick = function () {
 
     }
@@ -984,13 +974,13 @@ function drawStar() {
             svg.setAttribute("onmousemove", null);
             svg.setAttribute("onmouseup", null);
             svg.setAttribute("onmousedown", null);
-            drawItem()
+            drawStar()
         };
     };
 }
 
 function randInt(high, low) { return Math.floor(Math.random() * (high - low + 1)) + low; }
-
+function randColor() { return ("RGB(" + randInt(255, 0) + "," + randInt(255, 0) + "," + randInt(255, 0) + ")"); }
 function dot(x, y) {
     this.x = x;
     this.y = y;

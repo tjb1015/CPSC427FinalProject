@@ -45,6 +45,7 @@ function shapesMenu() {
     str += '<li><a onclick="chooseShape(\'oct\')"> Octagon &emsp;</a></li>';
     str += '<li><a onclick="chooseShape(\'arrow\')"> Arrow &emsp;</a></li>';
     str += '<li><a onclick="chooseShape(\'free\')"> Draw &emsp; </a></li>';
+    str += '<li><a onclick="drawStar()"> Star </a></li>';
     str += '<li><a onclick="bezier()"> Bezier Curve </a></li>';
     str += '</ul>';
     shapesDiv.innerHTML += str;
