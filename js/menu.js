@@ -6,7 +6,7 @@ function fileMenu() {
     var fileDiv = document.getElementById("secondary");
     fileDiv.style.backgroundColor = "#64AAD0"
     str = '';
-    str += '<ul id="Menu"><li><a onclick="Export()"> Export &emsp;</a></li>';
+    str += '<ul id="Menu">'
     str += '<li><a onclick="New()"> New &emsp;</a></li>';
     str += '<li><a onclick="alert('meow')"> About</a></li>';
     str += '</ul>';
