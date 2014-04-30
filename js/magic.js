@@ -8,79 +8,93 @@ function pauseEvent(e) {
     return false;
 }//used example from the internet http://stackoverflow.com/questions/5429827/how-can-i-prevent-text-element-selection-with-cursor-drag
 
-//makes grid
-function gridOne() {
-    var myDiv = document.getElementById('mySVG');
-    hgt = myDiv.clientHeight
-    finhgt = hgt / 10
+var svgNS = "http://www.w3.org/2000/svg"; 
 
+//makes grid but has it hidden, so it is always on the bottom
+function gridOne(){
+var myDiv = document.getElementById('mySVG');
+hgt=myDiv.clientHeight
+finhgt=hgt/10
+Content=["","100","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1400","1500","1600"]
 
     //running into crossbroswer issue, in regards to a grid, and sizing issues.
+	//works perfectly in chrome
+	//In IE and Opera, the length wants to be infinite (strange) 
+	//In Firefox nothing shows up (also strange)
+	
+    var G=document.createElementNS(svgNS, "g")
+	G.setAttribute("id", "griddy")
+	document.getElementById("mySVG").appendChild(G)
+    griddy.style.visibility="hidden"
+    for (var i=0;i<finhgt;i++){
 
 
-    for (var i = 0; i < finhgt; i++) {
+                var myGrid = document.createElementNS(svgNS,'line')
+				myGrid.setAttribute("id","linearY")
+                myGrid.setAttribute("stroke-width","1")
+                myGrid.setAttribute("stroke","lightgray")
+                myGrid.setAttribute("x1",0)
+                myGrid.setAttribute("x2","100%")
+                myGrid.setAttribute("y1",i*100)
+				myGrid.setAttribute("y2",i*100)
+                G.appendChild(myGrid)
+
+				var mygrid = document.createElementNS(svgNS,'line')
+				mygrid.setAttribute("id","linearX")
+                mygrid.setAttribute("stroke-width","1")
+                mygrid.setAttribute("stroke","lightgray")
+                mygrid.setAttribute("x1",i*100)
+                mygrid.setAttribute("x2",i*100)
+                mygrid.setAttribute("y1",0)
+				mygrid.setAttribute("y2","100%")
+                G.appendChild(mygrid)
+
+				var yT=document.createElementNS(svgNS,"text")
+				yT.setAttribute("font-size",15)
+				yT.setAttribute("font-weight","bold")
+				yT.setAttribute("fill","black")
+				yT.setAttribute("x",0)
+				yT.setAttribute("y",15+i*100)
+				yT.textContent=Content[i]
+				G.appendChild(yT)
+
+				var xT=document.createElementNS(svgNS,"text")
+				xT.setAttribute("font-size",15)
+				xT.setAttribute("font-weight","bold")
+				xT.setAttribute("fill","black")
+				xT.setAttribute("x",2.5+i*100)
+				xT.setAttribute("y",13)
+				xT.textContent=Content[i]
+				G.appendChild(xT)
+
+		}
 
 
-        var myGrid = document.createElementNS(svgNS, 'line')
-        myGrid.setAttribute("id", "linearY")
-        myGrid.setAttribute("stroke-width", "1")
-        myGrid.setAttribute("stroke", "lightgray")
-        myGrid.setAttribute("x1", 0)
-        myGrid.setAttribute("x2", "100%")
-        myGrid.setAttribute("y1", i * 100)
-        myGrid.setAttribute("y2", i * 100)
-        document.getElementById("mySVG").appendChild(myGrid)
-
-        var mygrid = document.createElementNS(svgNS, 'line')
-        mygrid.setAttribute("id", "linearX")
-        mygrid.setAttribute("stroke-width", "1")
-        mygrid.setAttribute("stroke", "lightgray")
-        mygrid.setAttribute("x1", i * 100)
-        mygrid.setAttribute("x2", i * 100)
-        mygrid.setAttribute("y1", 0)
-        mygrid.setAttribute("y2", "100%")
-        document.getElementById("mySVG").appendChild(mygrid)
-
-        var yT = document.createElementNS(svgNS, "text")
-        yT.setAttribute("font-size", 15)
-        yT.setAttribute("font-weight", "bold")
-        yT.setAttribute("fill", "black")
-        yT.setAttribute("x", 0)
-        yT.setAttribute("y", 15 + i * 100)
-        yT.textContent = (i * 100) == 0 ? "" : i * 100;
-        document.getElementById("mySVG").appendChild(yT)
-
-        var xT = document.createElementNS(svgNS, "text")
-        xT.setAttribute("font-size", 15)
-        xT.setAttribute("font-weight", "bold")
-        xT.setAttribute("fill", "black")
-        xT.setAttribute("x", 2.5 + i * 100)
-        xT.setAttribute("y", 13)
-        xT.textContent =  i * 100
-        document.getElementById("mySVG").appendChild(xT)
-
+ //some browser inconsistancy issues		
+ f=navigator.userAgent.search("Firefox");
+ O=navigator.userAgent.search("Opera")
+ 
+  if (f>-1){
+    //brwsr = "Firefox";
     }
-
-    //some browser inconsistancy issues		
-    f = navigator.userAgent.search("Firefox");
-    O = navigator.userAgent.search("Opera")
-
-    if (f > -1) {
-        //brwsr = "Firefox";
-    }
-    else if (O > -1) {
-        //brwsr = "Opera";
+  else if(O>-1){
+    //brwsr = "Opera";
     }
 
     //alert(brwsr);
-}
+ }
 
-//clears grid with jquery remove function
-function clearGrid() {
-    $('line').remove();
-    $('text').remove();
+//Grid is the first thing called so it is the bottom element, this function simply hides and unhides it.
+function clearGrid(grid){
+   if (grid=='yes'){
+      dd=document.getElementById("griddy")
+      dd.style.visibility="visible"
+	 }
+	if (grid=='no'){
+	  pewpew=document.getElementById("griddy")
+      pewpew.style.visibility="hidden"
+	}
 }
-
 //creating shapes
 xmlns = "http://www.w3.org/2000/svg"
 xlink = "http://www.w3.org/1999/xlink"
