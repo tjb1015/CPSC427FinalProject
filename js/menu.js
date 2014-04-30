@@ -1,4 +1,3 @@
-
 //The menu is going to be dynamically created.
 var subMenu = document.getElementById('menu')
 //makes file menu
@@ -9,7 +8,7 @@ function fileMenu() {
     str = '';
     str += '<ul id="Menu"><li><a onclick="Export()"> Export &emsp;</a></li>';
     str += '<li><a onclick="New()"> New &emsp;</a></li>';
-    str += '<li><a onclick="about()"> About</a></li>';
+    str += '<li><a onclick="alert('meow')"> About</a></li>';
     str += '</ul>';
     fileDiv.innerHTML += str;
 }
