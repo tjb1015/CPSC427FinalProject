@@ -1,5 +1,4 @@
 
-
 //The menu is going to be dynamically created.
 var subMenu = document.getElementById('menu')
 //makes file menu
@@ -71,14 +70,14 @@ function editMenu(chosenShape) {
 }
 
 //Makes grid menu
-function grid() {
-    $("#secondary").empty();
-    var gridDiv = document.getElementById("secondary");
-    gridDiv.style.backgroundColor = "#5FBDCE"
-    str = ''
-    str += '<ul id="Menu">'
-    str += '<li><input type="radio" onclick="gridOne()" name="grid" value="yesgrid">Yes</li>';
-    str += '<li><input type="radio" onclick="clearGrid()" name="grid" value="nogrid">No</li>';
-    str += '</ul>'
-    gridDiv.innerHTML += str;
+function grid(){
+ $( "#secondary" ).empty();
+ var gridDiv = document.getElementById("secondary");
+ gridDiv.style.backgroundColor="#5FBDCE"
+ str = ''
+ str += '<ul id="Menu">'
+ str += '<li><input type="radio" onclick="clearGrid(\'yes\')" name="grid" value="yesgrid" >Yes</li>';
+ str += '<li><input type="radio" onclick="clearGrid(\'no\')" name="grid" value="nogrid">No</li>';
+ str += '</ul>'
+ gridDiv.innerHTML += str; 
 }
