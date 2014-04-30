@@ -95,6 +95,12 @@ function clearGrid(grid){
       pewpew.style.visibility="hidden"
 	}
 }
+
+//creating the about statement
+function about(){
+	
+	alert("meow")
+}
 //creating shapes
 xmlns = "http://www.w3.org/2000/svg"
 xlink = "http://www.w3.org/1999/xlink"
