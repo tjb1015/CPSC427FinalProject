@@ -139,283 +139,136 @@ function startShape(evt) {
     pauseEvent(evt);
     if (evt.target.nodeName == "svg" && follow == false) {
         clearPoints()
+        var shape;
         if (chosenShape == "rect") {
             // Let's create a rectangle!
-            var R = document.createElementNS(xmlns, "path")
+            shape = document.createElementNS(xmlns, "path")
             currentShape = "rect" + recCount
-            R.setAttributeNS(null, "id", currentShape)
+            shape.setAttributeNS(null, "id", currentShape)
             recCount++
-            R.setAttributeNS(null, "class", "rect")
+            shape.setAttributeNS(null, "class", "rect")
 
             // Set Sizes
             firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
-            R.setAttributeNS(null, "d", "M " + firstCoord)
+            shape.setAttributeNS(null, "d", "M " + firstCoord)
 
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            R.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            R.setAttributeNS(null, "stroke", "black")
-
-            // Set Functions
-            R.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            R.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Rect
-            document.getElementById("mySVG").appendChild(R)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
         }
         else if (chosenShape == "tri") {
             // Time for the Triangle
-            var T = document.createElementNS(xmlns, "path")
+            shape = document.createElementNS(xmlns, "path")
             currentShape = "tri" + triCount
-            T.setAttributeNS(null, "id", currentShape)
+            shape.setAttributeNS(null, "id", currentShape)
             triCount++
-            T.setAttributeNS(null, "class", "tri")
+            shape.setAttributeNS(null, "class", "tri")
 
             // Set Sizes
             firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
             remY = evt.clientY - fixY
-            T.setAttributeNS(null, "d", "M " + firstCoord)
-
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            T.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            T.setAttributeNS(null, "stroke", "black")
-
-            // Set Functions
-            T.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            T.setAttribute("onclick", "editMenu(chosenShape)")
-
-
-            // Add Rect
-            document.getElementById("mySVG").appendChild(T)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
+            shape.setAttributeNS(null, "d", "M " + firstCoord)
+            
         }
         else if (chosenShape == "circ") {
             // You spin me round right baby right round
-            var C = document.createElementNS(xmlns, "circle")
+            shape = document.createElementNS(xmlns, "circle")
             currentShape = "circ" + circCount
-            C.setAttributeNS(null, "id", currentShape)
+            shape.setAttributeNS(null, "id", currentShape)
             circCount++
-            C.setAttributeNS(null, "class", "circ")
+            shape.setAttributeNS(null, "class", "circ")
 
             // Set Sizes
             remX = evt.clientX
             remY = evt.clientY - fixY
-            C.setAttributeNS(null, "cx", evt.clientX)
-            C.setAttributeNS(null, "cy", evt.clientY - fixY)
-            C.setAttributeNS(null, "r", "1")
+            shape.setAttributeNS(null, "cx", evt.clientX)
+            shape.setAttributeNS(null, "cy", evt.clientY - fixY)
+            shape.setAttributeNS(null, "r", "1")
 
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            C.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            C.setAttributeNS(null, "stroke", "black")
-
-            // Set Functions
-            C.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            C.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Circle
-            document.getElementById("mySVG").appendChild(C)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
         }
         else if (chosenShape == "elli") {
             // Ellipse: like a circle, but not
-            var E = document.createElementNS(xmlns, "ellipse")
+            shape = document.createElementNS(xmlns, "ellipse")
             currentShape = "elli" + elliCount
-            E.setAttributeNS(null, "id", currentShape)
+            shape.setAttributeNS(null, "id", currentShape)
             elliCount++
-            E.setAttributeNS(null, "class", "elli")
+            shape.setAttributeNS(null, "class", "elli")
 
             // Set Sizes
             remX = evt.clientX
             remY = evt.clientY - fixY
-            E.setAttributeNS(null, "cx", evt.clientX)
-            E.setAttributeNS(null, "cy", evt.clientY - fixY)
-            E.setAttributeNS(null, "rx", "1")
-            E.setAttributeNS(null, "ry", "1")
+            shape.setAttributeNS(null, "cx", evt.clientX)
+            shape.setAttributeNS(null, "cy", evt.clientY - fixY)
+            shape.setAttributeNS(null, "rx", "1")
+            shape.setAttributeNS(null, "ry", "1")
 
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            E.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            E.setAttributeNS(null, "stroke", "black")
-
-            // Set Functions
-            E.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            E.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Circle
-            document.getElementById("mySVG").appendChild(E)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
         }
         else if (chosenShape == "line") {
             // Let's start a Line!
-            var L = document.createElementNS(xmlns, "path")
+            shape = document.createElementNS(xmlns, "path")
             currentShape = "line" + lineCount
-            L.setAttributeNS(null, "id", currentShape)
+            shape.setAttributeNS(null, "id", currentShape)
             lineCount++
-            L.setAttributeNS(null, "class", "line")
+            shape.setAttributeNS(null, "class", "line")
 
             // Set Sizes
             firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
 
-            L.setAttributeNS(null, "d", "M " + firstCoord)
+            shape.setAttributeNS(null, "d", "M " + firstCoord)
 
-            // Black Stroke
-            L.setAttributeNS(null, "stroke", "black")
-            L.setAttributeNS(null, "stroke-width", "4")
-
-            // Set Functions
-            L.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            L.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Rect
-            document.getElementById("mySVG").appendChild(L)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
         }
         else if (chosenShape == "ngon") {
             // Brace for NGon, To Infinity and Beyond!
-            var N = document.createElementNS(xmlns, "path")
+            shape = document.createElementNS(xmlns, "path")
             currentShape = "ngon" + ngonCount
-            N.setAttributeNS(null, "id", currentShape)
+            shape.setAttributeNS(null, "id", currentShape)
             ngonCount++
-            N.setAttributeNS(null, "class", "ngon")
+            shape.setAttributeNS(null, "class", "ngon")
 
             // Set Sizes
             firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
             secondCoord = (evt.clientX + 1).toString() + " " + (evt.clientY - fixY + 1).toString()
-            N.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
+            shape.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
 
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
 
-            // Fill Color, Black Stroke
-            N.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            N.setAttributeNS(null, "stroke", "black")
-
-            // Black Stroke
-            N.setAttributeNS(null, "stroke", "black")
-            N.setAttributeNS(null, "stroke-width", "1")
-
-            // Edit Menu
-            N.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add NGon
-            document.getElementById("mySVG").appendChild(N)
-            document.getElementById("mySVG").setAttribute("onmousedown", "addNgonCorner(evt)")
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
         }
         else if (chosenShape == "pent") {
             // The Symbol of the Beast
-            var P = document.createElementNS(xmlns, "path")
+            shape = document.createElementNS(xmlns, "path")
             currentShape = "pent" + pentCount
-            P.setAttributeNS(null, "id", currentShape)
+            shape.setAttributeNS(null, "id", currentShape)
             pentCount++
-            P.setAttributeNS(null, "class", "pent")
+            shape.setAttributeNS(null, "class", "pent")
 
             // Set Sizes
             remX = evt.clientX
             remY = evt.clientY - fixY
             firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
             secondCoord = (evt.clientX + 1).toString() + " " + (evt.clientY - fixY + 1).toString()
-            P.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
+            shape.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
 
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
 
-            // Fill Color, Black Stroke
-            P.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            P.setAttributeNS(null, "stroke", "black")
-
-            // Black Stroke
-            P.setAttributeNS(null, "stroke", "black")
-            P.setAttributeNS(null, "stroke-width", "1")
-
-            // Function time
-            P.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            P.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Pentagon
-            document.getElementById("mySVG").appendChild(P)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
         }
         else if (chosenShape == "oct") {
             // Stop Sign
-            var O = document.createElementNS(xmlns, "path")
+            shape = document.createElementNS(xmlns, "path")
             currentShape = "oct" + octCount
-            O.setAttributeNS(null, "id", currentShape)
+            shape.setAttributeNS(null, "id", currentShape)
             octCount++
-            O.setAttributeNS(null, "class", "oct")
+            shape.setAttributeNS(null, "class", "oct")
 
             // Set Sizes
             remX = evt.clientX
             remY = evt.clientY - fixY
             firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
             secondCoord = (evt.clientX + 1).toString() + " " + (evt.clientY - fixY + 1).toString()
-            O.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
+            shape.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
 
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            O.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            O.setAttributeNS(null, "stroke", "black")
-
-            // Black Stroke
-            O.setAttributeNS(null, "stroke", "black")
-            O.setAttributeNS(null, "stroke-width", "1")
-
-            // Function time
-            O.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            O.setAttribute("onclick", "editMenu(chosenShape)")
-
-            // Add Pentagon
-            document.getElementById("mySVG").appendChild(O)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
         }
         else if (chosenShape == "arrow") {
             // Arrow head
-            var A = document.createElementNS(xmlns, "path")
+            shape = document.createElementNS(xmlns, "path")
             currentShape = "arrow" + arrowCount
-            A.setAttributeNS(null, "id", currentShape)
+            shape.setAttributeNS(null, "id", currentShape)
             arrowCount++
-            A.setAttributeNS(null, "class", "arrow")
+            shape.setAttributeNS(null, "class", "arrow")
 
             // Set Sizes
             remX = evt.clientX
@@ -423,32 +276,22 @@ function startShape(evt) {
 
             firstCoord = (evt.clientX).toString() + " " + (evt.clientY - fixY).toString()
             secondCoord = (evt.clientX + 1).toString() + " " + (evt.clientY - fixY + 1).toString()
-            A.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
+            shape.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
 
-            // Random Colors
-            red = Math.floor(Math.random() * 255);
-            green = Math.floor(Math.random() * 255);
-            blue = Math.floor(Math.random() * 255);
-
-            // Fill Color, Black Stroke
-            A.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-            A.setAttributeNS(null, "stroke", "black")
-
-            // Black Stroke
-            A.setAttributeNS(null, "stroke", "black")
-            A.setAttributeNS(null, "stroke-width", "1")
-
-            // Function time
-            A.setAttribute("onmousedown", "startMove(evt, id)")
-
-            // Edit Menu
-            A.setAttribute("onclick", "editMenu(chosenShape)")
-
-
-            // Add Arrow
-            document.getElementById("mySVG").appendChild(A)
-            document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
         }
+
+
+        // Fill Color, Black Stroke
+        shape.setAttributeNS(null, "fill", randColor())
+        shape.setAttributeNS(null, "stroke", "black")
+
+        // Set Functions
+        shape.setAttribute("onmousedown", "startMove(evt, id)")
+
+        // Edit Menu   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        shape.setAttribute("onclick", "editMenu(" + chosenShape + ")")
+        document.getElementById("mySVG").appendChild(shape)
+        document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
     }
 }
 
@@ -1000,7 +843,9 @@ function drawStar() {
 }
 
 function randInt(high, low) { return Math.floor(Math.random() * (high - low + 1)) + low; }
+
 function randColor() { return ("RGB(" + randInt(255, 0) + "," + randInt(255, 0) + "," + randInt(255, 0) + ")"); }
+
 function dot(x, y) {
     this.x = x;
     this.y = y;
@@ -1012,6 +857,7 @@ function distanceTwoPoints(point1, point2) // distence between two points  <----
     //alert (a)
     return a;
 }
+
 function iPoint(p1, p2, p3, p4)//finds the intersection point given four point on two different lines <----->
     // p1 and p2 on line one, p3 and p4 on line two. Returns 0,0 if parallel
 {
@@ -1192,39 +1038,8 @@ function pColor(chosenShape) {
 function rColor(chosenShape) {
     //grabs current shape
     cs = document.getElementById(currentShape)
+    cs.setAttributeNS(null, "fill", randColor())
 
-    //sets random RGB values
-    red = Math.floor(Math.random() * 255);
-    green = Math.floor(Math.random() * 255);
-    blue = Math.floor(Math.random() * 255);
-
-    if (chosenShape == 'rect') {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == 'tri') {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == 'circ') {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == 'elli') {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == "line") {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == "ngon") {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == "pent") {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == "oct") {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
-    else if (chosenShape == "arrow") {
-        cs.setAttributeNS(null, "fill", "RGB(" + red + "," + green + "," + blue + ")")
-    }
 }
 
 //Smooth

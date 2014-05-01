@@ -8,7 +8,7 @@ function fileMenu() {
     str = '';
     str += '<ul id="Menu">'
     str += '<li><a onclick="New()"> New &emsp;</a></li>';
-    str += '<li><a onclick="alert('meow')"> About</a></li>';
+    str += '<li><a onclick="alert(\'meow\')"> About</a></li>';
     str += '</ul>';
     fileDiv.innerHTML += str;
 }
@@ -19,7 +19,9 @@ function brushMenu() {
     var brushDiv = document.getElementById("secondary");
     brushDiv.style.backgroundColor = "#04859D"
     str = '';
-    str += '<ul id="menu1"><li><a onclick="brush1()"> Brush 1 &emsp;</a></li>';
+    str += '<ul id="menu1">';
+    str += '<li><a onclick="chooseShape(\'free\')"> Draw &emsp; </a></li>';
+    str += '<li><a onclick="brush1()"> Brush 1 &emsp;</a></li>';
     str += '<li><a onclick="brush2()"> Brush 2 &emsp;</a></li>';
     str += '<li><a onclick="brush3()"> Brush 3 &emsp;</a></li>';
     str += '<li><a onclick="brush4()"> Brush 4 </a></li>';
@@ -42,7 +44,6 @@ function shapesMenu() {
     str += '<li><a onclick="chooseShape(\'pent\')"> Pentagon &emsp;</a></li>';
     str += '<li><a onclick="chooseShape(\'oct\')"> Octagon &emsp;</a></li>';
     str += '<li><a onclick="chooseShape(\'arrow\')"> Arrow &emsp;</a></li>';
-    str += '<li><a onclick="chooseShape(\'free\')"> Draw &emsp; </a></li>';
     str += '<li><a onclick="drawStar()"> Star </a></li>';
     str += '<li><a onclick="bezier()"> Bezier Curve </a></li>';
     str += '</ul>';
@@ -53,17 +54,18 @@ function shapesMenu() {
 function editMenu(chosenShape) {
     $("#secondary").empty();
     var editDiv = document.getElementById("secondary");
+    var  shape = document.getElementById(chosenShape);
     editDiv.style.backgroundColor = "#37B6CE"
     str = '';
-    str += '<ul id="menu3"><li><a onclick="average(chosenShape)"> Average &emsp;</a></li>';
-    str += '<li><a onclick="copy(chosenShape)"> Copy  &emsp;</a></li>';
-    str += '<li><a onclick="del(chosenShape)"> Delete &emsp;</a></li>';
-    str += '<li><a onclick="flip(chosenShape)"> Flip &emsp; </a></li>';
-    str += '<li><a onclick="pColor(chosenShape)"> PickColor &emsp; </a></li>';
-    str += '<li><a onclick="rColor(chosenShape)"> Recolor  &emsp;</a></li>';
-    str += '<li><a onclick="smooth(chosenShape)"> Smooth &emsp;</a></li>';
-    str += '<li><a onclick="unselect(chosenShape)"> Unselect &emsp; </a></li>';
-    str += '<li><a onclick="viewsrc(chosenShape)"> ViewSrc &emsp; </a></li>';
+    str += '<ul id="menu3"><li><a onclick="average(' + shape + ')"> Average &emsp;</a></li>';
+    str += '<li><a onclick="copy(' + shape + ')"> Copy  &emsp;</a></li>';
+    str += '<li><a onclick="del(' + shape + ')"> Delete &emsp;</a></li>';
+    str += '<li><a onclick="flip(' + shape + ')"> Flip &emsp; </a></li>';
+    str += '<li><a onclick="pColor(' + shape + ')"> PickColor &emsp; </a></li>';
+    str += '<li><a onclick="rColor(' + shape + ')"> Recolor  &emsp;</a></li>';
+    str += '<li><a onclick="smooth(' + shape + ')"> Smooth &emsp;</a></li>';
+    str += '<li><a onclick="unselect(' + shape + ')"> Unselect &emsp; </a></li>';
+    str += '<li><a onclick="viewsrc(' + shape + ')"> ViewSrc &emsp; </a></li>';
     str += '</ul>';
     editDiv.innerHTML += str;
 }
