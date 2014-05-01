@@ -130,6 +130,10 @@ function chooseShape(shape) {
 
     document.getElementById("mySVG").setAttribute("onmousedown", "startShape(evt)")
 
+    if (chosenShape == "free") {
+        drawItem()
+    }
+
 }
 
 function startShape(evt) {
@@ -276,14 +280,13 @@ function startShape(evt) {
             secondCoord = (evt.clientX + 1).toString() + " " + (evt.clientY - fixY + 1).toString()
             shape.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
 
-        } if (chosenShape == "free") {
-            drawItem()
-        }
+        } 
 
 
         // Fill Color, Black Stroke
         shape.setAttributeNS(null, "fill", randColor())
         shape.setAttributeNS(null, "stroke", "black")
+        shape.setAttributeNS(null, "stroke-width", "3")
 
         // Set Functions
         shape.setAttribute("onmousedown", "startMove(evt, id)")
@@ -773,8 +776,7 @@ function drawItem() {
         svg.setAttribute("onmousedown", function (evt) {
             evt = evt || window.event;
             pauseEvent(evt);
-
-
+            
 
         });
     }
