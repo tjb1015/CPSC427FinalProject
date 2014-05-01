@@ -129,9 +129,7 @@ function chooseShape(shape) {
     clearPoints()
 
     document.getElementById("mySVG").setAttribute("onmousedown", "startShape(evt)")
-    if (chosenShape == "free") {
-        drawItem()
-    }
+
 }
 
 function startShape(evt) {
@@ -278,6 +276,8 @@ function startShape(evt) {
             secondCoord = (evt.clientX + 1).toString() + " " + (evt.clientY - fixY + 1).toString()
             shape.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
 
+        } if (chosenShape == "free") {
+            drawItem()
         }
 
 
@@ -289,7 +289,8 @@ function startShape(evt) {
         shape.setAttribute("onmousedown", "startMove(evt, id)")
 
         // Edit Menu   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        shape.setAttribute("onclick", "editMenu(" + chosenShape + ")")
+        
+        shape.setAttribute("onclick", "editMenu(" + shape.getAttribute("id") + ")")
         document.getElementById("mySVG").appendChild(shape)
         document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
     }
@@ -503,6 +504,7 @@ function addNgonCorner(evt) {
 }
 
 function startMove(evt, shapeID) {
+   
     evt = evt || window.event;
     pauseEvent(evt);
     clearPoints()
@@ -543,14 +545,17 @@ function startMove(evt, shapeID) {
         }
     }
 
-    document.getElementById(shapeID).setAttribute("onmousemove", "shapeMove(evt, id)")
-    document.getElementById(shapeID).setAttribute("onmouseup", "shapeStop(id)")
+    //document.getElementById(shapeID).setAttribute("onmousemove", "shapeMove(evt, id)")
+   // document.getElementById(shapeID).setAttribute("onmouseup", "shapeStop(id)")
+    document.getElementById("mySVG").setAttribute("onmousemove", "shapeMove(evt," + shapeID + ")")
+    document.getElementById("mySVG").setAttribute("onmouseup", "shapeStop(" + shapeID + ")")
 }
 
 function shapeMove(evt, shapeID) {
+
     evt = evt || window.event;
     pauseEvent(evt);
-    whichClass = document.getElementById(shapeID).getAttribute("class")
+    whichClass = shapeID.getAttribute("class")
     if (whichClass == "rect" || whichClass == "tri" || whichClass == "line" || whichClass == "ngon" || whichClass == "pent" || whichClass == "oct" || whichClass == "arrow" && shapeFollow == true) {
         // Move Shapes
         loopLength = displacementX.length
@@ -580,23 +585,23 @@ function shapeMove(evt, shapeID) {
             newDimension += newX + newY
         }
 
-        document.getElementById(shapeID).setAttribute("d", newDimension)
+        shapeID.setAttribute("d", newDimension)
     }
     else if (whichClass == "circ" || whichClass == "elli" && shapeFollow == true) {
         // Spin that record
-        document.getElementById(shapeID).setAttribute("cx", evt.clientX)
-        document.getElementById(shapeID).setAttribute("cy", evt.clientY - fixY)
+        shapeID.setAttribute("cx", evt.clientX)
+        shapeID.setAttribute("cy", evt.clientY - fixY)
     }
 }
 
 function shapeStop(shapeID) {
     shapeFollow = false
-    whichClass = document.getElementById(shapeID).getAttribute("class")
+    whichClass = shapeID.getAttribute("class")
     if (whichClass == "rect" || whichClass == "tri" || whichClass == "line" || whichClass == "ngon" || whichClass == "pent" || whichClass == "oct" || whichClass == "arrow") {
         addPoints(shapeID)
     }
-    document.getElementById(shapeID).setAttribute("onmousemove", "")
-    document.getElementById(shapeID).setAttribute("onmouseup", "")
+    document.getElementById("mySVG").setAttribute("onmousemove", "")
+    document.getElementById("mySVG").setAttribute("onmouseup", "")
 }
 
 function clearPoints() {
@@ -616,7 +621,7 @@ function pointMove(evt, CP, shapeID) {
     evt = evt || window.event;
     pauseEvent(evt);
     if (follow) {
-        whichClass = document.getElementById(shapeID).getAttribute("class")
+        whichClass = shapeID.getAttribute("class")
         if (whichClass == "rect" || whichClass == "tri" || whichClass == "line" || whichClass == "ngon" || whichClass == "pent" || whichClass == "oct" || whichClass == "arrow") {
             num = CP.id.charAt(1)
 
@@ -628,7 +633,7 @@ function pointMove(evt, CP, shapeID) {
             document.getElementById("F" + num).setAttribute("cy", evt.clientY - fixY)
 
             // Now the shape
-            x = document.getElementById(shapeID).getAttribute("d")
+            x = shapeID.getAttribute("d")
             loopLength = x.split("L").length
             lp = loopLength
 
@@ -657,15 +662,15 @@ function pointMove(evt, CP, shapeID) {
                 newDimension += val1 + " " + val2
             }
 
-            document.getElementById(shapeID).setAttribute("d", newDimension)
+            shapeID.setAttribute("d", newDimension)
         }
     }
 }
 
 function pointStop(shapeID) {
     follow = false
-    x = document.getElementById(shapeID).getAttribute("d")
-    whichClass = document.getElementById(shapeID).getAttribute("class")
+    x = shapeID.getAttribute("d")
+    whichClass = shapeID.getAttribute("class")
     loopLength = x.split("L").length
 
     if (whichClass != "line") {
@@ -679,14 +684,14 @@ function pointStop(shapeID) {
 }
 
 function addPoints(shapeID) {
-    whichClass = document.getElementById(shapeID).getAttribute("class")
+    whichClass = shapeID.getAttribute("class")
     clearPoints()
 
     if (whichClass == "rect" || whichClass == "tri" || whichClass == "line" || whichClass == "ngon" || whichClass == "pent" || whichClass == "oct" || whichClass == "arrow") {
         // Gathering coordinates from the shape
         y = shapeID
 
-        x = document.getElementById(shapeID).getAttribute("d")
+        x = shapeID.getAttribute("d")
         loopLength = x.split("L").length
         if (whichClass != "line") {
             loopLength -= 1
