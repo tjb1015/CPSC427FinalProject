@@ -8,6 +8,8 @@ function pauseEvent(e) {
     return false;
 }//used example from the internet http://stackoverflow.com/questions/5429827/how-can-i-prevent-text-element-selection-with-cursor-drag
 
+
+//svg namespace
 var svgNS = "http://www.w3.org/2000/svg"; 
 
 //makes grid but has it hidden, so it is always on the bottom
@@ -18,57 +20,53 @@ finhgt=hgt/10
 Content=["","100","200","300","400","500","600","700","800","900","1000","1100","1200","1300","1400","1500","1600"]
 
     //running into crossbroswer issue, in regards to a grid, and sizing issues.
-	//works perfectly in chrome
-	//In IE and Opera, the length wants to be infinite (strange) 
-	//In Firefox nothing shows up (also strange)
-	
     var G=document.createElementNS(svgNS, "g")
-	G.setAttribute("id", "griddy")
-	document.getElementById("mySVG").appendChild(G)
+    G.setAttribute("id", "griddy")
+    document.getElementById("mySVG").appendChild(G)
     griddy.style.visibility="hidden"
     for (var i=0;i<finhgt;i++){
-
-
+	
+	
                 var myGrid = document.createElementNS(svgNS,'line')
-				myGrid.setAttribute("id","linearY")
+		myGrid.setAttribute("id","linearY")
                 myGrid.setAttribute("stroke-width","1")
                 myGrid.setAttribute("stroke","lightgray")
                 myGrid.setAttribute("x1",0)
                 myGrid.setAttribute("x2","100%")
-                myGrid.setAttribute("y1",i*100)
-				myGrid.setAttribute("y2",i*100)
+                myGrid.setAttribute("y1",45+i*100)
+		myGrid.setAttribute("y2",45+i*100)
                 G.appendChild(myGrid)
-
-				var mygrid = document.createElementNS(svgNS,'line')
-				mygrid.setAttribute("id","linearX")
+				
+		var mygrid = document.createElementNS(svgNS,'line')
+		mygrid.setAttribute("id","linearX")
                 mygrid.setAttribute("stroke-width","1")
                 mygrid.setAttribute("stroke","lightgray")
                 mygrid.setAttribute("x1",i*100)
                 mygrid.setAttribute("x2",i*100)
-                mygrid.setAttribute("y1",0)
-				mygrid.setAttribute("y2","100%")
+                mygrid.setAttribute("y1",45)
+		mygrid.setAttribute("y2","100%")
                 G.appendChild(mygrid)
-
-				var yT=document.createElementNS(svgNS,"text")
-				yT.setAttribute("font-size",15)
-				yT.setAttribute("font-weight","bold")
-				yT.setAttribute("fill","black")
-				yT.setAttribute("x",0)
-				yT.setAttribute("y",15+i*100)
-				yT.textContent=Content[i]
-				G.appendChild(yT)
-
-				var xT=document.createElementNS(svgNS,"text")
-				xT.setAttribute("font-size",15)
-				xT.setAttribute("font-weight","bold")
-				xT.setAttribute("fill","black")
-				xT.setAttribute("x",2.5+i*100)
-				xT.setAttribute("y",13)
-				xT.textContent=Content[i]
-				G.appendChild(xT)
-
-		}
-
+				
+		var yT=document.createElementNS(svgNS,"text")
+		yT.setAttribute("font-size",15)
+		yT.setAttribute("font-weight","bold")
+		yT.setAttribute("fill","black")
+		yT.setAttribute("x",0)
+		yT.setAttribute("y",60+i*100)
+		yT.textContent=Content[i]
+		G.appendChild(yT)
+				
+		var xT=document.createElementNS(svgNS,"text")
+		xT.setAttribute("font-size",15)
+		xT.setAttribute("font-weight","bold")
+		xT.setAttribute("fill","black")
+		xT.setAttribute("x",2.5+i*100)
+		xT.setAttribute("y",60)
+		xT.textContent=Content[i]
+		G.appendChild(xT)
+				
+	}
+	
 
  //some browser inconsistancy issues		
  f=navigator.userAgent.search("Firefox");
@@ -80,7 +78,7 @@ Content=["","100","200","300","400","500","600","700","800","900","1000","1100",
   else if(O>-1){
     //brwsr = "Opera";
     }
-
+	
     //alert(brwsr);
  }
 
@@ -920,7 +918,7 @@ hv=document.getElementById("HV")
 	  
 	  function movesat(evt){
 	   sv=document.getElementById("SV")
-	   ss=Math.ceil((evt.clientX-90)/2)
+	   ss=Math.ceil((evt.clientX-545)/2)
 	   
 	   if ((evt.clientX>545)&&(evt.clientX<745)){
 	         evt.target.setAttribute("x1",evt.clientX)
@@ -932,7 +930,7 @@ hv=document.getElementById("HV")
 	  
 	  function movelit(evt){
 	   lv=document.getElementById("LV")
-           ll=Math.ceil((evt.clientX-90)/2)
+           ll=Math.ceil((evt.clientX-862)/2)
 	   
 	   if ((evt.clientX>862)&&(evt.clientX<1062)){
 	         evt.target.setAttribute("x1",evt.clientX)
