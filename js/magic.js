@@ -885,6 +885,84 @@ function iPoint(p1, p2, p3, p4)//finds the intersection point given four point o
 //editing functions
 
 
+//colorPicker
+picked=""
+hv=document.getElementById("HV")
+
+
+  function selecthue() {
+     document.getElementById("mySVG").setAttribute("onmousemove","movehue(evt)")
+     document.getElementById("mySVG").setAttribute("onmouseup","stop()") 
+    }
+    
+  function selectsat() {
+     document.getElementById("mySVG").setAttribute("onmousemove","movesat(evt)")
+     document.getElementById("mySVG").setAttribute("onmouseup","stop()") 
+    }
+    
+   function selectlit() {
+      document.getElementById("mySVG").setAttribute("onmousemove","movelit(evt)")
+      document.getElementById("mySVG").setAttribute("onmouseup","stop()") 
+    }
+        
+
+	function movehue(evt) {
+	  hv=document.getElementById("HV")
+	  hh=Math.ceil((evt.clientX-90))
+	
+	  if ((evt.clientX>90)&&(evt.clientX<450)){
+	        evt.target.setAttribute("x1",evt.clientX)
+		evt.target.setAttribute("x2",evt.clientX)
+		hv.textContent = hh
+		finalC()
+       }
+   }
+	  
+	  function movesat(evt){
+	   sv=document.getElementById("SV")
+	   ss=Math.ceil((evt.clientX-90)/2)
+	   
+	   if ((evt.clientX>545)&&(evt.clientX<745)){
+	         evt.target.setAttribute("x1",evt.clientX)
+		 evt.target.setAttribute("x2",evt.clientX)
+	         sv.textContent = ss
+		 finalC()
+       }
+   }
+	  
+	  function movelit(evt){
+	   lv=document.getElementById("LV")
+           ll=Math.ceil((evt.clientX-90)/2)
+	   
+	   if ((evt.clientX>862)&&(evt.clientX<1062)){
+	         evt.target.setAttribute("x1",evt.clientX)
+		 evt.target.setAttribute("x2",evt.clientX)
+		 lv.textContent = ll
+		 finalC()
+       }
+   }
+  
+  function finalC(chosenShape){
+   cs = document.getElementById(currentShape)
+   cc=document.getElementById("sc")
+   cd=document.getElementById("ss")
+   Hh=document.getElementById("HV").textContent
+   Ss=document.getElementById("SV").textContent
+   Ll=document.getElementById("LV").textContent
+   
+   cc.setAttribute("stop-color", "hsl(" + Hh + ", 100%, 50%)")
+   cd.setAttribute("stop-color", "hsl(" + Hh + ", 15%, 50%)")
+   
+   cs.style.fill="hsl("+Hh+","+Ss+"%,"+Ll+"%)"
+   
+  }
+  
+  function stop(){
+    document.getElementById("mySVG").setAttribute("onmousemove",null)
+    document.getElementById("mySVG").setAttribute("onmouseup",null)
+    }
+
+
 //average
 function average(chosenShape) {
     if (chosenShape == 'rect') {
