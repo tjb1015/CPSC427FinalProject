@@ -42,6 +42,53 @@
     </div>
     <svg class="canvas" id="mySVG" width="100%" height="100%">
         <g id="grid"><g/>
+        
+ <g id="colorPick">
+ <defs>
+<linearGradient id="RGB" x1="0" x2="100%">
+  <stop offset="0" stop-color="#f00"/>
+	 <stop offset=".167" stop-color="#ff0"/>
+	 <stop offset=".333" stop-color="#0f0"/>
+	 <stop offset=".50" stop-color="#0ff"/>
+	 <stop offset=".667" stop-color="#00f"/>
+	 <stop offset=".833" stop-color="#f0f"/>
+   <stop offset="1"  stop-color="#f00"/>
+
+</linearGradient>
+
+<linearGradient id="satcolor" x1="0" x2="100%">
+<stop id="ss" offset="0" stop-color="#006600"/>
+<stop id="sc" offset="1"  stop-color="#00FF00"/>
+</linearGradient>
+
+<linearGradient id="litcolor" x1="0" x2="100%">
+<stop id="b1" offset="0" stop-color="black"/>
+<stop id="lc" offset="1"  stop-color="white"/>
+</linearGradient>
+
+</defs>
+
+
+//Hue Controls
+<text x="5" y="25" >Hue</text>
+<text id="HV" x="50" y="25" >115</text>
+<rect width="360" height="25" x="90" y="8" stroke="black" fill="url(#RGB)"/>
+<line id="hue" onmousedown="selecthue()" x1="180" y1="3" x2="180" y2="37" style="stroke:gray;stroke-width:10;stroke-opacity:0.8" />
+
+//Sat Controls
+<text x="475" y="25" font-size="16">Sat</text>
+<text id="SV" x="515" y="25" >73</text>
+<rect width="200" height="25" x="545" y="8" stroke="black" fill="url(#satcolor)"/>
+<line id="sat" onmousedown="selectsat()" x1="640" y1="3" x2="640" y2="37" style="stroke:gray;stroke-width:10;stroke-opacity:0.8" />
+
+//Lit Controls
+<text x="780" y="25" font-size="16">Light</text>
+<text id="LV" x="830" y="25" >52</text>
+<rect width="200" height="25" x="862" y="8" stroke="black" fill="url(#litcolor)"/>
+<line id="lit" onmousedown="selectlit()" x1="965" y1="3" x2="965" y2="37" style="stroke:lightgray;stroke-width:10;stroke-opacity:0.8" />
+
+</g>
+	  
     </svg>
 </body>
 </html>
