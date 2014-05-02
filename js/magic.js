@@ -98,7 +98,7 @@ function clearGrid(grid){
 
 //opens up About section in new window
 function about(){
-    var newWindow = window.open("./CPSC427FinalProject/about.html", "", "fullscreen=no","bgcolor='white'")
+    var newWindow = window.open("about.html", "", "fullscreen=no","bgcolor='white'")
 }
 
 //creating shapes
