@@ -8,7 +8,7 @@ function fileMenu() {
     str = '';
     str += '<ul id="Menu">'
     str += '<li><a onclick="New()"> New &emsp;</a></li>';
-    str += '<li><a onclick="alert(\'meow\')"> About</a></li>';
+    str += '<li><a onclick="about()"> About</a></li>';
     str += '</ul>';
     fileDiv.innerHTML += str;
 }
