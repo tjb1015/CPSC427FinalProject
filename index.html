@@ -13,13 +13,13 @@
 
 </head>
 
-<body onload="init()">
+<body onload="init()" onresize="changeSize()">
     <div id="main" class="title" style="cursor:pointer">
         <ul id="Menu" class="menu">
-            <li><a onclick="fileMenu(); clearColor(false);">&nbsp; File</a></li>
-            <li><a onclick="brushMenu(); clearColor(false);">&nbsp; Free Draw</a></li>
-            <li><a onclick="shapesMenu(); clearColor(false);">&nbsp; Shapes</a></li>
-            <li><a onclick="grid(); clearColor(false);">&nbsp; Grid</a></li>
+            <li><a onclick="fileMenu()">&nbsp; File</a></li>
+            <li><a onclick="brushMenu()">&nbsp; Free Draw</a></li>
+            <li><a onclick="shapesMenu()">&nbsp; Shapes</a></li>
+            <li><a onclick="grid()">&nbsp; Grid</a></li>
         </ul>
 
     </div>
@@ -40,8 +40,8 @@
     </script>
     <div id="secondary" class="toolbar" style="cursor:pointer">
     </div>
-    <svg class="canvas" id="mySVG" width="100%" height="100%">
-        <g id="grid"><g/>
+    <svg class="canvas" id="mySVG">
+        <g id="griddy"></g>
         <g id="drawArea"></g>
         <g id="colorPick">
             <defs>
