@@ -53,7 +53,7 @@ Content=["","100","200","300","400","500","600","700","800","900","1000","1100",
 		yT.setAttribute("fill","black")
 		yT.setAttribute("x",0)
 		yT.setAttribute("y",60+i*100)
-		yT.textContent=Content[i]
+		yT.textContent = i * 100;
 		G.appendChild(yT)
 				
 		var xT=document.createElementNS(svgNS,"text")
@@ -62,7 +62,7 @@ Content=["","100","200","300","400","500","600","700","800","900","1000","1100",
 		xT.setAttribute("fill","black")
 		xT.setAttribute("x",2.5+i*100)
 		xT.setAttribute("y",60)
-		xT.textContent=Content[i]
+		xT.textContent = i * 100;
 		G.appendChild(xT)
 				
 	}
@@ -85,13 +85,18 @@ Content=["","100","200","300","400","500","600","700","800","900","1000","1100",
 //Grid is the first thing called so it is the bottom element, this function simply hides and unhides it.
 function clearGrid(grid){
    if (grid=='yes'){
-      dd=document.getElementById("griddy")
-      dd.style.visibility="visible"
-	 }
-	if (grid=='no'){
-	  pewpew=document.getElementById("griddy")
-      pewpew.style.visibility="hidden"
+       dd = document.getElementById("griddy");
+       dd.style.visibility = "visible";
 	}
+	if (grid=='no'){
+	    pewpew = document.getElementById("griddy");
+	    pewpew.style.visibility = "hidden";
+	}
+}
+
+function init() {
+    clearColor(false);
+    gridOne();
 }
 
 //opens up About section in new window
@@ -103,7 +108,9 @@ function about(){
 xmlns = "http://www.w3.org/2000/svg"
 xlink = "http://www.w3.org/1999/xlink"
 
-chosenShape = ""
+chosenShape = "";
+chosenShapeObject = "";
+copyShape = ""
 recCount = 0, triCount = 0, circCount = 0, elliCount = 0, lineCount = 0, ngonCount = 0
 pentCount = 0, octCount = 0, arrowCount = 0
 cpCount = 0
@@ -120,7 +127,7 @@ directionY = new Array();
 
 function chooseShape(shape) {
     chosenShape = shape
-
+    clearColor(false);
     document.getElementById("mySVG").setAttribute("onmousedown", null)
     document.getElementById("mySVG").setAttribute("onmousemove", null)
     document.getElementById("mySVG").setAttribute("onmouseup", null)
@@ -291,11 +298,13 @@ function startShape(evt) {
 
         // Edit Menu   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         
-        shape.setAttribute("onclick", "editMenu(" + shape.getAttribute("id") + ")")
-        document.getElementById("mySVG").appendChild(shape)
-        document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)")
+        shape.onclick = function () { chosenShapeObject = this; editMenu(); }
+        document.getElementById("drawArea").appendChild(shape);
+        document.getElementById("mySVG").setAttribute("onmousemove", "drawShape(evt)");
     }
 }
+
+
 
 function drawShape(evt) {
     evt = evt || window.event;
@@ -904,44 +913,56 @@ hv=document.getElementById("HV")
     }
         
 
-	function movehue(evt) {
-	  hv=document.getElementById("HV")
-	  hh=Math.ceil((evt.clientX-90))
+   function movehue(evt) {
+       evt = evt || window.event;
+       pauseEvent(evt);
+
+       var hv = document.getElementById("HV");
+       var hue = document.getElementById("hue");
+       var hh = Math.ceil((evt.clientX - 90));
 	
 	  if ((evt.clientX>90)&&(evt.clientX<450)){
-	        evt.target.setAttribute("x1",evt.clientX)
-		evt.target.setAttribute("x2",evt.clientX)
-		hv.textContent = hh
-		finalC()
+	      hue.setAttribute("x1", evt.clientX);
+	      hue.setAttribute("x2", evt.clientX);
+	      hv.textContent = hh;
+	      finalC();
        }
    }
 	  
-	  function movesat(evt){
-	   sv=document.getElementById("SV")
-	   ss=Math.ceil((evt.clientX-545)/2)
+   function movesat(evt) {
+       evt = evt || window.event;
+       pauseEvent(evt);
+
+       var sv = document.getElementById("SV");
+       var sat = document.getElementById("sat");
+       var ss = Math.ceil((evt.clientX - 545) / 2);
 	   
 	   if ((evt.clientX>545)&&(evt.clientX<745)){
-	         evt.target.setAttribute("x1",evt.clientX)
-		 evt.target.setAttribute("x2",evt.clientX)
-	         sv.textContent = ss
-		 finalC()
+	       sat.setAttribute("x1", evt.clientX);
+	       sat.setAttribute("x2", evt.clientX);
+	       sv.textContent = ss;
+	       finalC();
        }
    }
 	  
-	  function movelit(evt){
-	   lv=document.getElementById("LV")
-           ll=Math.ceil((evt.clientX-862)/2)
+   function movelit(evt) {
+       evt = evt || window.event;
+       pauseEvent(evt);
+
+       var lv = document.getElementById("LV");
+       var lit = document.getElementById("lit");
+       var ll = Math.ceil((evt.clientX - 862) / 2);
 	   
 	   if ((evt.clientX>862)&&(evt.clientX<1062)){
-	         evt.target.setAttribute("x1",evt.clientX)
-		 evt.target.setAttribute("x2",evt.clientX)
-		 lv.textContent = ll
-		 finalC()
+	       lit.setAttribute("x1", evt.clientX);
+	       lit.setAttribute("x2", evt.clientX);
+	       lv.textContent = ll;
+	       finalC();
        }
    }
   
-  function finalC(chosenShape){
-   cs = document.getElementById(currentShape)
+  function finalC(){
+
    cc=document.getElementById("sc")
    cd=document.getElementById("ss")
    Hh=document.getElementById("HV").textContent
@@ -951,7 +972,7 @@ hv=document.getElementById("HV")
    cc.setAttribute("stop-color", "hsl(" + Hh + ", 100%, 50%)")
    cd.setAttribute("stop-color", "hsl(" + Hh + ", 15%, 50%)")
    
-   cs.style.fill="hsl("+Hh+","+Ss+"%,"+Ll+"%)"
+   chosenShapeObject.setAttributeNS(null, "fill", "hsl(" + Hh + "," + Ss + "%," + Ll + "%)")
    
   }
   
@@ -960,7 +981,14 @@ hv=document.getElementById("HV")
     document.getElementById("mySVG").setAttribute("onmouseup",null)
     }
 
-
+  function clearColor(color) {
+      var CP = document.getElementById("colorPick");
+      if (color) {
+          CP.style.visibility = "visible";
+      }else{
+          CP.style.visibility = "hidden";
+      }
+  }
 //average
 function average(chosenShape) {
     if (chosenShape == 'rect') {
@@ -995,64 +1023,13 @@ function average(chosenShape) {
 
 //copy
 function copy(chosenShape) {
-    if (chosenShape == 'rect') {
-        console.log('copyRectangle')
-    }
-    else if (chosenShape == 'tri') {
-        console.log('copyTriangle')
-    }
-    else if (chosenShape == 'circ') {
-        console.log('copyCircle')
-    }
-    else if (chosenShape == 'elli') {
-        console.log('copyElli')
-    }
-    else if (chosenShape == "line") {
-        console.log('copyLine')
-    }
-    else if (chosenShape == "ngon") {
-        console.log('copyNgon')
-    }
-    else if (chosenShape == "pent") {
-        console.log('copyPent')
-    }
-    else if (chosenShape == "oct") {
-        console.log('copyOct')
-    }
-    else if (chosenShape == "arrow") {
-        console.log('copyArrow')
-    }
+    copyShape = chosenShapeObject;
 }
 
 //Delete
 function del(chosenShape) {
-    if (chosenShape == 'rect') {
-        console.log('deleteRectangle')
-    }
-    else if (chosenShape == 'tri') {
-        console.log('deleteTriangle')
-    }
-    else if (chosenShape == 'circ') {
-        console.log('deleteCircle')
-    }
-    else if (chosenShape == 'elli') {
-        console.log('deleteElli')
-    }
-    else if (chosenShape == "line") {
-        console.log('deleteLine')
-    }
-    else if (chosenShape == "ngon") {
-        console.log('deleteNgon')
-    }
-    else if (chosenShape == "pent") {
-        console.log('deletePent')
-    }
-    else if (chosenShape == "oct") {
-        console.log('deleteOct')
-    }
-    else if (chosenShape == "arrow") {
-        console.log('deleteArrow')
-    }
+
+    document.getElementById("drawArea").removeChild(chosenShapeObject);
 }
 
 //flip
@@ -1087,42 +1064,14 @@ function flip(chosenShape) {
 }
 
 //pick color
-function pColor(chosenShape) {
-    if (chosenShape == 'rect') {
-        console.log('pcRectangle')
-    }
-    else if (chosenShape == 'tri') {
-        console.log('pcTriangle')
-    }
-    else if (chosenShape == 'circ') {
-        console.log('pcCircle')
-    }
-    else if (chosenShape == 'elli') {
-        console.log('pcElli')
-    }
-    else if (chosenShape == "line") {
-        console.log('pcLine')
-    }
-    else if (chosenShape == "ngon") {
-        console.log('pcNgon')
-    }
-    else if (chosenShape == "pent") {
-        console.log('pcPent')
-    }
-    else if (chosenShape == "oct") {
-        console.log('pcOct')
-    }
-    else if (chosenShape == "arrow") {
-        console.log('pcArrow')
-    }
+function pColor() {    
+    clearColor(true);
 }
 
 //Re Color
-function rColor(chosenShape) {
+function rColor() {
     //grabs current shape
-    cs = document.getElementById(currentShape)
-    cs.setAttributeNS(null, "fill", randColor())
-
+    chosenShapeObject.setAttributeNS(null, "fill", randColor())
 }
 
 //Smooth

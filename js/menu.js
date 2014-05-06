@@ -51,21 +51,23 @@ function shapesMenu() {
 }
 
 //Makes edit menu
-function editMenu(chosenShape) {
+function editMenu() {
     $("#secondary").empty();
+    
     var editDiv = document.getElementById("secondary");
-    var  shape = document.getElementById(chosenShape);
+    var shape = chosenShape.id;
+   // alert(chosenShape+shape)
     editDiv.style.backgroundColor = "#37B6CE"
     str = '';
-    str += '<ul id="menu3"><li><a onclick="average(' + shape + ')"> Average &emsp;</a></li>';
-    str += '<li><a onclick="copy(' + shape + ')"> Copy  &emsp;</a></li>';
-    str += '<li><a onclick="del(' + shape + ')"> Delete &emsp;</a></li>';
-    str += '<li><a onclick="flip(' + shape + ')"> Flip &emsp; </a></li>';
-    str += '<li><a onclick="pColor(' + shape + ')"> PickColor &emsp; </a></li>';
-    str += '<li><a onclick="rColor(' + shape + ')"> Recolor  &emsp;</a></li>';
-    str += '<li><a onclick="smooth(' + shape + ')"> Smooth &emsp;</a></li>';
-    str += '<li><a onclick="unselect(' + shape + ')"> Unselect &emsp; </a></li>';
-    str += '<li><a onclick="viewsrc(' + shape + ')"> ViewSrc &emsp; </a></li>';
+    str += '<ul id="menu3"><li><a onclick="average()"> Average &emsp;</a></li>';
+    str += '<li><a onclick="clearColor(false);copy()"> Copy  &emsp;</a></li>';
+    str += '<li><a onclick="clearColor(false);del()"> Delete &emsp;</a></li>';
+    str += '<li><a onclick="clearColor(false);flip()"> Flip &emsp; </a></li>';
+    str += '<li><a onclick="clearColor(false);pColor()"> PickColor &emsp; </a></li>';
+    str += '<li><a onclick="clearColor(false);rColor()"> Recolor  &emsp;</a></li>';
+    str += '<li><a onclick="clearColor(false);smooth()"> Smooth &emsp;</a></li>';
+    str += '<li><a onclick="clearColor(false);unselect()"> Unselect &emsp; </a></li>';
+    str += '<li><a onclick="clearColor(false);viewsrc()"> ViewSrc &emsp; </a></li>';
     str += '</ul>';
     editDiv.innerHTML += str;
 }
