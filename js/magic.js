@@ -123,12 +123,16 @@ function chooseShape(shape) {
     document.getElementById("mySVG").setAttribute("onmousedown", null)
     document.getElementById("mySVG").setAttribute("onmousemove", null)
     document.getElementById("mySVG").setAttribute("onmouseup", null)
+    document.getElementById("mySVG").setAttribute("onclick", null)
     clearPoints()
 
     document.getElementById("mySVG").setAttribute("onmousedown", "startShape(evt)")
 
     if (chosenShape == "free") {
         drawItem()
+    } else if (chosenShape == "star") {
+        document.getElementById("mySVG").setAttribute("onmousedown", null)
+        document.getElementById("mySVG").setAttribute("onclick", "drawStar(evt)")
     }
 
 }
@@ -278,7 +282,7 @@ function startShape(evt) {
             shape.setAttributeNS(null, "d", "M " + firstCoord + " L " + secondCoord)
 
         } 
-
+        
 
         // Fill Color, Black Stroke
         shape.setAttributeNS(null, "fill", randColor())
@@ -771,7 +775,22 @@ function drawItem() {
         }
         path.setAttributeNS(null, "d", path.data);
     }
-    path.onclick = function () {
+    path.onmousedown = function () {
+        var G = document.createElementNS(xmlns, "g")
+        G.setAttribute("id", "CP" + cpCount)
+        cpCount++
+        document.getElementById("mySVG").appendChild(G)
+
+        for (i = 0; i < this.dotAry.length; i++) {
+            
+            var F1 = document.createElementNS(xmlns, "circle")
+            F1.setAttributeNS(null, "cx", this.dotAry[i].x)
+            F1.setAttributeNS(null, "cy", this.dotAry[i].y)
+            F1.setAttributeNS(null, "r", "5")
+            F1.setAttributeNS(null, "stroke", "black")
+            F1.setAttributeNS(null, "fill", "red")
+            G.appendChild(F1);
+        }
         svg.setAttribute("onmousedown", function (evt) {
             evt = evt || window.event;
             pauseEvent(evt);
@@ -785,23 +804,31 @@ function drawItem() {
         path.drawIt
         svg.onmousemove = path.drawIt;
         svg.onmouseup = function (evt) {
-            var svg = document.getElementById("mySVG");
-            svg.setAttribute("onmousemove", null);
-            svg.setAttribute("onmouseup", null);
-            svg.setAttribute("onmousedown", null);
+           
+            svg.setAttribute("onmousedown", null)
+            svg.setAttribute("onmousemove", null)
+            svg.setAttribute("onmouseup", null)
             drawItem()
+        
         };
     };
 }
 
-function drawStar() {
+function drawStar(evt) {
     //adobted from Dr.D's code.
+    evt = evt || window.event;
+    pauseEvent(evt);
     var svg = document.getElementById("mySVG");
-    svg.setAttribute("onmousedown", null);
-
+    
+    var X = evt.clientX
+    var Y = evt.clientY - fixY
 
     var path = document.createElementNS(xmlns, "path");
-    var permute = randInt(30, 5)
+
+    var n = Math.floor(Math.random() * 12) + 5
+    var permute = Math.floor(Math.random() * (n - 4)) + 3
+    if (Math.floor(n / permute) * permute == n) n++
+
     path.dotAry = [];
     path.setAttributeNS(null, "stroke", "black");
     path.setAttributeNS(null, "stroke-width", "5");
@@ -828,24 +855,8 @@ function drawStar() {
 
     path.setAttributeNS(null, "d", starstring);
 
+    svg.appendChild(path);
 
-
-    path.onclick = function () {
-
-    }
-
-    svg.onmousedown = function (evt) {
-        svg.appendChild(path)
-        path.drawIt
-        svg.onmousemove = path.drawIt;
-        svg.onmouseup = function (evt) {
-            var svg = document.getElementById("mySVG");
-            svg.setAttribute("onmousemove", null);
-            svg.setAttribute("onmouseup", null);
-            svg.setAttribute("onmousedown", null);
-            drawStar()
-        };
-    };
 }
 
 function randInt(high, low) { return Math.floor(Math.random() * (high - low + 1)) + low; }
@@ -1016,6 +1027,9 @@ function average(chosenShape) {
 //copy
 function copy(chosenShape) {
     copyShape = chosenShapeObject;
+
+
+
 }
 
 //Delete
